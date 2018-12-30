@@ -39,6 +39,31 @@ townPropMapTemplate = Template(filename='templates/townPropertyMap.html',strict_
 townTrailMapTemplate = Template(filename='templates/townTrailMap.html',strict_undefined=True,input_encoding='utf-8',lookup=templateLookup )
 improveTownTemplate = Template(filename='templates/improvetown.html',strict_undefined=True,input_encoding='utf-8',lookup=templateLookup )
 
+# to preserve the timestamp info, don't overwrite existing files with the same content.
+def writeFileIfDifferent( newLandownerFile, filename):
+    existingFile = ""
+    newFile = newLandownerFile.getvalue()
+
+    if ( os.path.exists(filename) ):
+        with open(filename,encoding='utf-8') as fileHandle: 
+            existingFile = fileHandle.read()
+
+    if ( existingFile != newFile):
+        print("file modified " + filename)
+
+        #with open ("/home/jason/mass-trails.org/src/old.txt",encoding='utf-8',mode="w") as fileHandle :
+        #    fileHandle.write(existingFile)
+        #with open ("/home/jason/mass-trails.org/src/new.txt",encoding='utf-8',mode="w") as fileHandle :
+        #    fileHandle.write(newFile)
+        
+        with open (filename,encoding='utf-8',mode="w") as fileHandle :
+            fileHandle.write(newFile)
+
+        #os.exit(0)
+    else:
+        pass
+        #print("file not modified " + filename)
+
 
 def propertyPageName(osmId, normalizedName) :
     if ( normalizedName and len(normalizedName) > 0):
@@ -203,21 +228,23 @@ def WriteTowns(townNameFilter,searchUrls):
         if ( len(landOwnerList) > 5):
             topLandOwnerList = landOwnerList[0:5]
                                 
-        with open ("../towns/{}.html".format(townName),encoding='utf-8',mode="w") as townFile :
-            body = townTemplate.render(
-                townName=townName,
-                townAreaSqMiles=townAreaSqMiles,
-                publicTrailLength=townPublicTrailLength*METERS_TO_MILES,
-                conservationAreaSqMiles=conservationAreaSqMiles,
-                zips=zips,
-                townBoundary=geojson.dumps(townBoundaryJson),
-                landInTown=geojson.dumps(landInTownJson),
-                adjacent=adjacentTowns, 
-                propertyList=topPropertyList,
-                landOwnerList=topLandOwnerList,
-                propertyListFull=propertyList,
-                landOwnerListFull=landOwnerList)
-            townFile.write(body)
+        newFile = io.StringIO()
+        body = townTemplate.render(
+            townName=townName,
+            townAreaSqMiles=townAreaSqMiles,
+            publicTrailLength=townPublicTrailLength*METERS_TO_MILES,
+            conservationAreaSqMiles=conservationAreaSqMiles,
+            zips=zips,
+            townBoundary=geojson.dumps(townBoundaryJson),
+            landInTown=geojson.dumps(landInTownJson),
+            adjacent=adjacentTowns, 
+            propertyList=topPropertyList,
+            landOwnerList=topLandOwnerList,
+            propertyListFull=propertyList,
+            landOwnerListFull=landOwnerList)
+        newFile.write( body)
+        writeFileIfDifferent( newFile, "../towns/{}.html".format(townName))
+        newFile.close()
 
         searchUrls.append( 
             {
@@ -228,19 +255,21 @@ def WriteTowns(townNameFilter,searchUrls):
             }
         )
 
-        with open ("../towns/{}/Properties_.html".format(townName),encoding='utf-8',mode="w") as townFileProp :
-            body = townPropTemplate.render(
-                townName=townName,
-                townAreaSqMiles=townAreaSqMiles,
-                publicTrailLength=townPublicTrailLength*METERS_TO_MILES,
-                conservationAreaSqMiles=conservationAreaSqMiles,
-                zips=zips,
-                townBoundary=geojson.dumps(townBoundaryJson),
-                landInTown=geojson.dumps(landInTownJson),
-                adjacent=adjacentTowns, 
-                propertyList=propertyList,
-                landOwnerList=landOwnerList)
-            townFileProp.write(body)
+        newFile = io.StringIO()
+        body = townPropTemplate.render(
+            townName=townName,
+            townAreaSqMiles=townAreaSqMiles,
+            publicTrailLength=townPublicTrailLength*METERS_TO_MILES,
+            conservationAreaSqMiles=conservationAreaSqMiles,
+            zips=zips,
+            townBoundary=geojson.dumps(townBoundaryJson),
+            landInTown=geojson.dumps(landInTownJson),
+            adjacent=adjacentTowns, 
+            propertyList=propertyList,
+            landOwnerList=landOwnerList)
+        newFile.write( body)
+        writeFileIfDifferent( newFile, "../towns/{}/Properties_.html".format(townName))
+        newFile.close()
 
         searchUrls.append( 
             {
@@ -251,36 +280,22 @@ def WriteTowns(townNameFilter,searchUrls):
             }
         )
 
-        with open ("../towns/{}/Owners_.html".format(townName),encoding='utf-8',mode="w") as townFileOwners :
-            body = townOwnersTemplate.render(
-                townName=townName,
-                townAreaSqMiles=townAreaSqMiles,
-                publicTrailLength=townPublicTrailLength*METERS_TO_MILES,
-                conservationAreaSqMiles=conservationAreaSqMiles,
-                zips=zips,
-                townBoundary=geojson.dumps(townBoundaryJson),
-                landInTown=geojson.dumps(landInTownJson),
-                adjacent=adjacentTowns, 
-                propertyList=propertyList,
-                landOwnerList=landOwnerList)
-            townFileOwners.write(body)
+        newFile = io.StringIO()
+        body = townOwnersTemplate.render(
+            townName=townName,
+            townAreaSqMiles=townAreaSqMiles,
+            publicTrailLength=townPublicTrailLength*METERS_TO_MILES,
+            conservationAreaSqMiles=conservationAreaSqMiles,
+            zips=zips,
+            townBoundary=geojson.dumps(townBoundaryJson),
+            landInTown=geojson.dumps(landInTownJson),
+            adjacent=adjacentTowns, 
+            propertyList=propertyList,
+            landOwnerList=landOwnerList)
+        newFile.write( body)
+        writeFileIfDifferent( newFile, "../towns/{}/Owners_.html".format(townName))
+        newFile.close()
 
-        propertyList = sorted(propertyList, key=lambda k: k['propertyAreaInTown'],reverse=True)
-
-        with open ("../towns/{}/improve_.html".format(townName),encoding='utf-8',mode="w") as townFileProp :
-            body = improveTownTemplate.render(
-                townName=townName,
-                townAreaSqMiles=townAreaSqMiles,
-                publicTrailLength=townPublicTrailLength*METERS_TO_MILES,
-                conservationAreaSqMiles=conservationAreaSqMiles,
-                zips=zips,
-                townBoundary=geojson.dumps(townBoundaryJson),
-                landInTown=geojson.dumps(landInTownJson),
-                adjacent=adjacentTowns, 
-                propertyList=propertyList,
-                landOwnerList=landOwnerList)
-            townFileProp.write(body)
-            
         searchUrls.append( 
             {
                 'url':"/towns/{}/Owners_.html".format(townName),
@@ -289,6 +304,24 @@ def WriteTowns(townNameFilter,searchUrls):
                 'show':"{} Landowners".format(townName)
             }
         )
+            
+        propertyList = sorted(propertyList, key=lambda k: k['propertyAreaInTown'],reverse=True)
+            
+        newFile = io.StringIO()
+        body = improveTownTemplate.render(
+            townName=townName,
+            townAreaSqMiles=townAreaSqMiles,
+            publicTrailLength=townPublicTrailLength*METERS_TO_MILES,
+            conservationAreaSqMiles=conservationAreaSqMiles,
+            zips=zips,
+            townBoundary=geojson.dumps(townBoundaryJson),
+            landInTown=geojson.dumps(landInTownJson),
+            adjacent=adjacentTowns, 
+            propertyList=propertyList,
+            landOwnerList=landOwnerList)
+        newFile.write( body)
+        writeFileIfDifferent( newFile, "../towns/{}/improve_.html".format(townName))
+        newFile.close()
 
         WriteTownPropertyMapPage(townName,townBoundaryJson,searchUrls )
 
@@ -443,18 +476,20 @@ def WriteLandOwners(searchUrls):
             except Exception as ex:
                 print("Landowner {} shape can't merge to geojson {}".format(name,ex))
 
-        with open ("../landowners/{}.html".format(normalizedName),encoding='utf-8',mode="w") as groupFile :
-            body = landOwnerTemplate.render(
-                name=name,
-                normalizedName=normalizedName,
-                conservationAreaSqMiles=conservationAreaSqMiles,
-                propertyList=propertyList,
-                publicTrailLength=ownerPublicTrailLength,
-                website=website,
-                allShape=geojson.dumps(allShapeJson),
-                )
-            groupFile.write(body)
-
+        newFile = io.StringIO()
+        body = landOwnerTemplate.render(
+            name=name,
+            normalizedName=normalizedName,
+            conservationAreaSqMiles=conservationAreaSqMiles,
+            propertyList=propertyList,
+            publicTrailLength=ownerPublicTrailLength,
+            website=website,
+            allShape=geojson.dumps(allShapeJson),
+            )
+        newFile.write( body)
+        writeFileIfDifferent( newFile, "../landowners/{}.html".format(normalizedName))
+        newFile.close()
+            
         landOwnerListNew.append( 
             { 
                 'normalizedName':normalizedName,
@@ -476,11 +511,11 @@ def WriteLandOwners(searchUrls):
 
     landOwnerListNew = sorted(landOwnerListNew, key=lambda x: x['conservationAreaSqMiles'],reverse=True)
 
-    with open ("../landowners/index.html",encoding='utf-8',mode="w") as groupFile :
-        body = landOwnerIndexTemplate.render(
-            landOwnerList=landOwnerListNew
-            )
-        groupFile.write(body)
+    newFile = io.StringIO()
+    body = landOwnerIndexTemplate.render(landOwnerList=landOwnerListNew)
+    newFile.write( body)
+    writeFileIfDifferent( newFile, "../landowners/index.html")
+    newFile.close()
 
 def WriteTownPropertyMapPage(townName,townBoundaryJson,searchUrls ):
 
@@ -615,7 +650,8 @@ def WriteProperties(townNameFilter,searchUrls):
                 "where " + 
                 "properties.normalizedName = ? and " +
                 "propertyInsides.townName = ? and " +
-                "propertyInsides.osmId = properties.osmId", (normalizedName,townName) ).fetchall()
+                "propertyInsides.osmId = properties.osmId " +
+                "order by properties.osmId", (normalizedName,townName) ).fetchall()
 
             shape = shapely.geometry.Polygon([])
             shapeProj = shapely.geometry.Polygon([])
@@ -628,23 +664,49 @@ def WriteProperties(townNameFilter,searchUrls):
 
                 shapeProj = shapeProj.union(shapeProjI)
 
-                if ( startDate is None) : 
-                    startDate = startDateI
-                if ( websiteUrl is None) : 
-                    websiteUrl = websiteUrlI
-                if ( ownerName is None):
-                    ownerName = ownerNameI
-                    normalizedOwnerName = normalizedOwnerNameI
-                if ( access is None):
-                    access = accessI
-                if ( accessRaw is None):
-                    accessRaw = accessRawI; 
-                if ( openingHours is None):
-                    openingHours = openingHoursI
-                if ( wikipedia is None):
-                    wikipedia = wikipediaI
-                if ( propType is None):
-                    propType = propTypeI
+                # different OSM objects can have different attributes. We need to be 
+                # consistent with what is picked so the output files don't randomly change.
+                if ( not startDateI is None and len(startDateI) > 0 ):
+                    if ( startDate is None or len(startDate) == 0) : 
+                        startDate = startDateI
+                    else:
+                        startDateList = startDate.split(';')
+                        startDateList.extend( startDateI.split(';'))
+
+                        # we only care about years.
+                        for n, i in enumerate(startDateList):
+                            dt = i.split('-')
+                            if ( len(dt) > 1 and len(dt[0]) == 4):
+                                startDateList[n] = dt[0]
+
+                        startDateList = sorted(set(startDateList))
+                        startDate = ';'.join(startDateList)
+
+                if ( not websiteUrlI is None):
+                    if ( websiteUrl is None or websiteUrlI > websiteUrl) : 
+                        websiteUrl = websiteUrlI
+                                    
+                if ( not normalizedOwnerNameI is None):
+                    if ( ownerName is None or len(ownerNameI) > len(ownerName) or ownerNameI > ownerName)  :
+                        ownerName = ownerNameI
+                        normalizedOwnerName = normalizedOwnerNameI
+
+                if ( not accessI is None):
+                    if ( access is None or accessI > access):
+                        access = accessI
+                        accessRaw = accessRawI; 
+                
+                if ( not openingHoursI is None):
+                    if ( openingHours is None or openingHoursI > openingHours):
+                        openingHours = openingHoursI
+
+                if ( not wikipediaI is None):
+                    if ( wikipedia is None or wikipediaI > wikipedia):
+                        wikipedia = wikipediaI
+
+                if ( not propTypeI is None):
+                    if ( propType is None or propTypeI > propType):
+                        propType = propTypeI
 
                 publicTrailLength += publicTrailLengthI
                                     
@@ -686,29 +748,30 @@ def WriteProperties(townNameFilter,searchUrls):
 
         shapeJson = geojson.Feature(geometry=shape, properties={})
         
-        with open ("../towns/{}/{}.html".format(townName,propertyPageNameStr),encoding='utf-8',mode="w") as groupFile :
-            body = propertiesTemplate.render(
-                normalizedName=propertyPageNameStr,
-                townName=townName,
-                publicTrailLength=publicTrailLength*METERS_TO_MILES,
-                website=websiteUrl,
-                ownerName=ownerName,
-                normalizedOwnerName=normalizedOwnerName,
-                osmIds=osmIds,
-                propertyArea=area,
-                propertyAreaInTown=0.0,
-                startDate=startDate,
-                propType=propType,
-                access=access,
-                parking=parking,
-                rawAccess=accessRaw,
-                openingHours=openingHours,
-                wikipedia=wikipedia,
-                shape=geojson.dumps(shapeJson),
-                name=name
-                )
-            groupFile.write(body)
-
+        newFile = io.StringIO()
+        body = propertiesTemplate.render(
+            normalizedName=propertyPageNameStr,
+            townName=townName,
+            publicTrailLength=publicTrailLength*METERS_TO_MILES,
+            website=websiteUrl,
+            ownerName=ownerName,
+            normalizedOwnerName=normalizedOwnerName,
+            osmIds=osmIds,
+            propertyArea=area,
+            propertyAreaInTown=0.0,
+            startDate=startDate,
+            propType=propType,
+            access=access,
+            parking=parking,
+            rawAccess=accessRaw,
+            openingHours=openingHours,
+            wikipedia=wikipedia,
+            shape=geojson.dumps(shapeJson),
+            name=name
+            )
+        newFile.write( body)
+        writeFileIfDifferent( newFile, "../towns/{}/{}.html".format(townName,propertyPageNameStr))
+        newFile.close()
 
         if ( len(name) > 0 ) :
             # don't add dups to search list, because of multiple osm ids.
@@ -731,28 +794,30 @@ def WriteProperties(townNameFilter,searchUrls):
             if ( found == False):
                 searchUrls.append( newEntry)
 
-        with open ("../towns/{}/{}_improve.html".format(townName,propertyPageNameStr),encoding='utf-8',mode="w") as groupFile :
-            body = improvePropertiesTemplate.render(
-                normalizedName=propertyPageNameStr,
-                townName=townName,
-                publicTrailLength=publicTrailLength*METERS_TO_MILES,
-                website=websiteUrl,
-                ownerName=ownerName,
-                normalizedOwnerName=normalizedOwnerName,
-                osmIds=osmIds,
-                propertyArea=area,
-                propertyAreaInTown=0.0,
-                startDate=startDate,
-                propType=propType,
-                access=access,
-                parking=parking,                
-                rawAccess=accessRaw,
-                openingHours=openingHours,
-                wikipedia=wikipedia,
-                shape=geojson.dumps(shapeJson),
-                name=name
-                )
-            groupFile.write(body)
+        newFile = io.StringIO()
+        body = improvePropertiesTemplate.render(
+            normalizedName=propertyPageNameStr,
+            townName=townName,
+            publicTrailLength=publicTrailLength*METERS_TO_MILES,
+            website=websiteUrl,
+            ownerName=ownerName,
+            normalizedOwnerName=normalizedOwnerName,
+            osmIds=osmIds,
+            propertyArea=area,
+            propertyAreaInTown=0.0,
+            startDate=startDate,
+            propType=propType,
+            access=access,
+            parking=parking,                
+            rawAccess=accessRaw,
+            openingHours=openingHours,
+            wikipedia=wikipedia,
+            shape=geojson.dumps(shapeJson),
+            name=name
+            )
+        newFile.write( body)
+        writeFileIfDifferent( newFile, "../towns/{}/{}_improve.html".format(townName,propertyPageNameStr))
+        newFile.close()
 
         if ( len(name) > 0 ) :
             propertyListNew.append( (propertyPageNameStr,name) )            
@@ -775,19 +840,19 @@ searchUrls = []
 if ( len(sys.argv) == 1 ) :
 
     # clear out the existing files, landowners change.
-    generatedDirs = ['../landowners/','../towns/']
-    for generatedDir in generatedDirs:
+    #generatedDirs = ['../landowners/','../towns/']
+    #for generatedDir in generatedDirs:
 
-        for fileToDelete in recursive_glob(generatedDir,"*.html") :
-            os.remove(fileToDelete )
+    #for fileToDelete in recursive_glob(generatedDir,"*.html") :
+    #        os.remove(fileToDelete )
 
-        if ( os.path.exists(generatedDir)):
-            os.remove(generatedDir)
+    #    if ( os.path.exists(generatedDir)):
+    #        os.remove(generatedDir)
 
-        os.mkdir(generatedDir)
+    #    os.mkdir(generatedDir)
     
-    WriteTowns("", searchUrls)
-    WriteLandOwners(searchUrls)
+    #WriteTowns("", searchUrls)
+    #WriteLandOwners(searchUrls)
     WriteProperties("",searchUrls)
 
 else :

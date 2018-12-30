@@ -94,16 +94,9 @@ one that has town ownership or access.
 How you get from OSM to the website is complicated, so it would be great
 to have a "data origins and processing" page (need better name) that
 explains how you treat the tags and is careful to point out where you
-depart from the carto or standard approach.   Also a link to the code.
-I want a copy in case you get hit by a bus :-)
+depart from the carto or standard approach.   
 
 I wonder what you think about coloring the trails.
-
-This points out that we really need a way to have major/minor trails.
-Especially if people add crud from Strava, it cna then be demoted if it
-is not substantial.
-
-On this apge
 
 https://www.mass-trails.org/towns/Stow/stowtownforest.html
 
@@ -116,30 +109,4 @@ not sure how to fix.
 
 * https://www.mass-trails.org/towns/Stow/stowtownforest_improve.html
 
-presumably much of this is boilerplate
-
-I have a real concern about Strava, basically that people add trails
-because there is a trace on Strava, without actually seeing that there
-is a trace on the ground.
-
-Also, there is the delicate matter of mapping on private land where the
-landowner does not want to show up on the map.   I realize this is
-complicated, but basically my point is that a mapper should make a
-decision based on on-the-ground knowledge that something should be added,
-and then Strava can be used to refine geometry.   I have seen traces on
-Strava that are definittely not trails, and look like shortcuts home for
-individual mountain bikers.
-
-So I would recommend just dropping the notion of Strava here.  But if
-not, then "You should only add trails that you have verified in person
-actually exist.  After having physically observed a trail, Strava's
-heatmap can be helpful in refining geometry.  Be sure to add access
-tags, such as access=no if the property owner/manager forbids going off
-official trails."
-
-https://www.mass-trails.org/towns/Stow.html
-
-in map, i see leaflet and mapbox, but OSM attribution is missing.  I see
-it at the bottom, so really it's ok, but I think people like to see it
-in the map place with the others.
 

@@ -39,6 +39,15 @@ townPropMapTemplate = Template(filename='templates/townPropertyMap.html',strict_
 townTrailMapTemplate = Template(filename='templates/townTrailMap.html',strict_undefined=True,input_encoding='utf-8',lookup=templateLookup )
 improveTownTemplate = Template(filename='templates/improvetown.html',strict_undefined=True,input_encoding='utf-8',lookup=templateLookup )
 
+# multiple osm ways can have inconsistent values. We need to pick something 
+# to avoid random pages being generated.
+def mergeOsmValues( val1, val2) :
+    if (len(val1) > len(val2)):
+        return val1
+    if (len(val1) < len(val2)):
+        return val2
+    return min( val1, val2)
+
 # to preserve the timestamp info, don't overwrite existing files with the same content.
 def writeFileIfDifferent( newLandownerFile, filename):
     existingFile = ""
@@ -350,33 +359,40 @@ def WriteTowns(townNameFilter,searchUrls):
 
     townListNew = sorted(townListNew, key=lambda x: x["name"])
 
-    with open ("../towns/index.html",encoding='utf-8',mode="w") as groupFile :
-        body = townIndexTemplate.render(
-            townList=townListNew
-            )
-        groupFile.write(body)
+    newFile = io.StringIO()
+    body = townIndexTemplate.render(
+        townList=townListNew
+        )
+    newFile.write( body)
+    writeFileIfDifferent( newFile, "../towns/index.html")
+    newFile.close()
 
-    with open ("../towns/rank-area.html",encoding='utf-8',mode="w") as groupFile :
-        body = townRankTemplate.render(
-            rankBy="Open Space Area",
-            townList=sorted(townListNew, key=lambda x: x["conservationArea"],reverse=True)
-            )
-        groupFile.write(body)
+    newFile = io.StringIO()
+    body = townRankTemplate.render(
+        rankBy="Open Space Area",
+        townList=sorted(townListNew, key=lambda x: x["conservationArea"],reverse=True)
+        )
+    newFile.write( body)
+    writeFileIfDifferent( newFile, "../towns/rank-area.html")
+    newFile.close()
 
-    with open ("../towns/rank-area-percent.html",encoding='utf-8',mode="w") as groupFile :
-        body = townRankTemplate.render(
-            rankBy="Open Space Area Percentile",
-            townList=sorted(townListNew, key=lambda x: x["areaPercent"],reverse=True)
-            )
-        groupFile.write(body)
+    newFile = io.StringIO()
+    body = townRankTemplate.render(
+        rankBy="Open Space Area Percentile",
+        townList=sorted(townListNew, key=lambda x: x["areaPercent"],reverse=True)
+        )
+    newFile.write( body)
+    writeFileIfDifferent( newFile, "../towns/rank-area-percent.html")
+    newFile.close()
 
-    with open ("../towns/rank-trails.html",encoding='utf-8',mode="w") as groupFile :
-        body = townRankTemplate.render(
-            rankBy="Trails",
-            townList=sorted(townListNew, key=lambda x: x["publicTrailLength"],reverse=True)
-            )
-        groupFile.write(body)
-
+    newFile = io.StringIO()
+    body = townRankTemplate.render(
+        rankBy="Trails",
+        townList=sorted(townListNew, key=lambda x: x["publicTrailLength"],reverse=True)
+        )
+    newFile.write( body)
+    writeFileIfDifferent( newFile, "../towns/rank-trails.html")
+    newFile.close()
 
 
 def WriteLandOwners(searchUrls):
@@ -578,6 +594,16 @@ def WriteTownPropertyMapPage(townName,townBoundaryJson,searchUrls ):
 
         propertyListNew.append ( geojson.dumps(shapeJson))
 
+    newFile = io.StringIO()
+    body = townPropMapTemplate.render(
+        propertyList=propertyListNew,
+        townName=townName,
+        townBoundary=geojson.dumps(townBoundaryJson)
+    )
+    newFile.write( body)
+    writeFileIfDifferent( newFile, "../towns/{}/OpenSpacePropertyMap_.html".format(townName))
+    newFile.close()
+
     searchUrls.append( 
         {
             'url':"/towns/{}/OpenSpacePropertyMap_.html".format(townName),
@@ -587,14 +613,15 @@ def WriteTownPropertyMapPage(townName,townBoundaryJson,searchUrls ):
         }
     )
 
-    with open ("../towns/{}/OpenSpacePropertyMap_.html".format(townName),encoding='utf-8',mode="w") as townPropMap :
-        body = townPropMapTemplate.render(
-            propertyList=propertyListNew,
-            townName=townName,
-            townBoundary=geojson.dumps(townBoundaryJson)
-        )
-
-        townPropMap.write(body)
+    newFile = io.StringIO()
+    body = townTrailMapTemplate.render(
+        propertyList=propertyListNew,
+        townName=townName,
+        townBoundary=geojson.dumps(townBoundaryJson)
+    )
+    newFile.write( body)
+    writeFileIfDifferent( newFile, "../towns/{}/TrailMap_.html".format(townName))
+    newFile.close()
 
     searchUrls.append( 
         {
@@ -604,15 +631,6 @@ def WriteTownPropertyMapPage(townName,townBoundaryJson,searchUrls ):
             'show':"{} Trail Map".format(townName)
         }
     )
-
-    with open ("../towns/{}/TrailMap_.html".format(townName),encoding='utf-8',mode="w") as townTrailMap :
-        body = townTrailMapTemplate.render(
-            propertyList=propertyListNew,
-            townName=townName,
-            townBoundary=geojson.dumps(townBoundaryJson)
-        )
-
-        townTrailMap.write(body)
 
 
 def WriteProperties(townNameFilter,searchUrls):
@@ -636,7 +654,6 @@ def WriteProperties(townNameFilter,searchUrls):
         if ( townNameFilter != "" and townName != townNameFilter):
             continue
         
-
         shape = shapely.wkt.loads(geom)
         shapeProj = shapely.ops.transform(projectionToMeters, shape)
 
@@ -666,47 +683,35 @@ def WriteProperties(townNameFilter,searchUrls):
 
                 # different OSM objects can have different attributes. We need to be 
                 # consistent with what is picked so the output files don't randomly change.
-                if ( not startDateI is None and len(startDateI) > 0 ):
-                    if ( startDate is None or len(startDate) == 0) : 
-                        startDate = startDateI
-                    else:
-                        startDateList = startDate.split(';')
-                        startDateList.extend( startDateI.split(';'))
+                startDateList = startDate.split(';')
+                startDateList.extend( startDateI.split(';'))
+                # empty dates must go.
+                startDateList = [x for x in startDateList if x]
 
-                        # we only care about years.
-                        for n, i in enumerate(startDateList):
-                            dt = i.split('-')
-                            if ( len(dt) > 1 and len(dt[0]) == 4):
-                                startDateList[n] = dt[0]
+                # we only care about years.
+                for n, i in enumerate(startDateList):
+                    dt = i.split('-')
+                    if ( len(dt) > 1 and len(dt[0]) == 4):
+                        startDateList[n] = dt[0]
 
-                        startDateList = sorted(set(startDateList))
-                        startDate = ';'.join(startDateList)
+                startDateList = sorted(set(startDateList))
+                startDate = ';'.join(startDateList)
+                                                    
+                newOwnerName = mergeOsmValues( ownerName, ownerNameI)
+                if ( newOwnerName != ownerName):
+                    ownerName = ownerNameI
+                    normalizedOwnerName = normalizedOwnerNameI
 
-                if ( not websiteUrlI is None):
-                    if ( websiteUrl is None or websiteUrlI > websiteUrl) : 
-                        websiteUrl = websiteUrlI
-                                    
-                if ( not normalizedOwnerNameI is None):
-                    if ( ownerName is None or len(ownerNameI) > len(ownerName) or ownerNameI > ownerName)  :
-                        ownerName = ownerNameI
-                        normalizedOwnerName = normalizedOwnerNameI
-
-                if ( not accessI is None):
-                    if ( access is None or accessI > access):
-                        access = accessI
-                        accessRaw = accessRawI; 
+                newRawAccess = mergeOsmValues( accessRaw, accessRawI)
+                if ( newRawAccess != accessRaw ):
+                    access = accessI
+                    accessRaw = accessRawI; 
                 
-                if ( not openingHoursI is None):
-                    if ( openingHours is None or openingHoursI > openingHours):
-                        openingHours = openingHoursI
-
-                if ( not wikipediaI is None):
-                    if ( wikipedia is None or wikipediaI > wikipedia):
-                        wikipedia = wikipediaI
-
-                if ( not propTypeI is None):
-                    if ( propType is None or propTypeI > propType):
-                        propType = propTypeI
+                openingHours = mergeOsmValues(openingHours, openingHoursI)
+                wikipedia = mergeOsmValues(wikipediaI,wikipedia)
+                propType = mergeOsmValues( propType, propTypeI)
+                websiteUrl = mergeOsmValues( websiteUrlI, websiteUrl)
+                name = mergeOsmValues( nameI , name)
 
                 publicTrailLength += publicTrailLengthI
                                     
@@ -851,8 +856,8 @@ if ( len(sys.argv) == 1 ) :
 
     #    os.mkdir(generatedDir)
     
-    #WriteTowns("", searchUrls)
-    #WriteLandOwners(searchUrls)
+    WriteTowns("", searchUrls)
+    WriteLandOwners(searchUrls)
     WriteProperties("",searchUrls)
 
 else :

@@ -773,12 +773,19 @@ def recursive_glob(rootdir, pattern):
 searchUrls = []
 
 if ( len(sys.argv) == 1 ) :
-    # clear out the existing files, landowners change.
-    for landOwnerFile in glob.glob("../landowners/*.html") :
-        os.remove(landOwnerFile )
-    for townFile in recursive_glob("../towns/","*.html") :
-        os.remove(townFile )
 
+    # clear out the existing files, landowners change.
+    generatedDirs = ['../landowners/','../towns/']
+    for generatedDir in generatedDirs:
+
+        for fileToDelete in recursive_glob(generatedDir,"*.html") :
+            os.remove(fileToDelete )
+
+        if ( os.path.exists(generatedDir)):
+            os.remove(generatedDir)
+
+        os.mkdir(generatedDir)
+    
     WriteTowns("", searchUrls)
     WriteLandOwners(searchUrls)
     WriteProperties("",searchUrls)

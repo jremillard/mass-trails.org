@@ -1,12 +1,23 @@
-# Byte-compiled / optimized / DLL files
+# Python junk
+
 __pycache__/
 *.py[cod]
 *$py.class
+src/profile.csv
 
-zip
-*.pbf
+# generated 
+towns/*
+landowners/*
 src/properties-osm.geojson
 src/trails-osm.geojson
+src/mass-trails.sqlite
+src/*.pbf
+#scripts/modifiedtime.js
+#scripts/search.js
+#sitemap.xml
+#src/search.json
+
+# has dev key still.
 src/findwebsites.py
-src/*.sqlite
-src/profile.csv
+
+src/geo/zip

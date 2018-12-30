@@ -1,19 +1,20 @@
-../scripts/search.js: search.js ../sitemap.xml
-	browserify search.js --outfile ../scripts/search.js
-
-../sitemap.xml: trails-osm.geojson properties-osm.geojson sitemap.py ../towns/*.html 
+../sitemap.xml: sitemap.py ../towns/index.html ../scripts/search.js
 	python3 sitemap.py
 
-trails-osm.geojson: massachusetts-latest.osm.pbf properties-osm.geojson trails.py
+../towns/index.html search.json : makepages.py trails-osm.geojson properties-osm.geojson templates/*.html schema.sql  
+	python3 makepages.py
+
+../scripts/search.js: search.js search.json
+	browserify search.js --outfile ../scripts/search.js
+
+trails-osm.geojson: trails.py massachusetts-latest.osm.pbf properties-osm.geojson
 	python3 trails.py
 
-properties-osm.geojson: massachusetts-latest.osm.pbf properties.py
+properties-osm.geojson: properties.py massachusetts-latest.osm.pbf 
 	python3 properties.py
 
 schema.sql: mass-trails.sqlite
 	sqlite3 mass-trails.sqlite .schema > schema.sql
 
-../towns/index.html: trails-osm.geojson properties-osm.geojson makepages.py templates/*.html schema.sql
-	python3 makepages.py
 
 

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<%!
+import urllib.parse
+
+def url(text):
+    return urllib.parse.quote(text.encode('utf-8'))
+%>
+<html lang="en">
+  <head>
+    <%include file="headerall.html"/>
+    <Title>Towns Ranked By ${rankBy} - Massachusetts Trails</Title>
+    <script src="/scripts/tablesort.js"></script>   
+</head>
+<body>
+
+<header>
+    <nav>
+    <a href="/index.html">Welcome</a>
+    <a class="current" href="/towns/index.html">Towns</a>    
+    <a href="/map/ma.html">Statewide Trail Map</a>
+    <a href="/search.html">Search</a>
+    <a href="/contribute.html">Contribute</a>
+    </nav>
+    
+    <ol class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <li><a href="/towns/index.html">Towns</a></li>
+</ol> 
+</header>
+
+<div class="section">                            
+
+    <h2>Towns Ranked By ${rankBy}</h2>
+    <table id="propertyTableId">
+    <tr>
+        <th>Name</th>
+
+        <th>Open Space Area Square Miles</th>
+        <th>Open Space Area Rank</th>
+
+        <th>Open Space Area Percentage</th>
+        <th>Open Space Area Percentage Rank</th>
+        
+        <th>Public Trails Miles</th>            
+        <th>Public Trails Miles Rank</th>            
+        
+    </tr>    
+    % for i, town in enumerate(townList):
+        <tr>
+        <td><a href="/towns/${town['name'] | url}.html">${town['name'] | h,trim}</a></td>
+        <td>${ "{0:0.1f}".format(town['conservationArea']) }</td>
+        <td>${ "{0:0.0f}".format(town['rankConservationArea']) }</td>
+
+        <td>${ "{0:0.1f}".format(town['areaPercent']) }</td>
+        <td>${ "{0:0.0f}".format(town['rankAreaPercent']) }</td>
+
+        <td>${ "{0:0.1f}".format(town['publicTrailLength']) }</td>
+        <td>${ "{0:0.0f}".format(town['rankPublicTrailLength']) }</td>
+        
+        </tr>
+    % endfor
+    </table>
+
+</div>
+</body>
+</html>
+
+

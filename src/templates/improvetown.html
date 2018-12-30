@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<%!
+import urllib.parse
+
+def url(text):
+    return urllib.parse.quote(text.encode('utf-8'))
+%>
+
+<html lang="en">
+  <head>
+    <%include file="headerall.html"/>        
+    <Title>Improve ${townName | h,trim} Pages - Massachusetts Trails</Title>
+    <meta name="robots" content="noindex">
+    <script src="/scripts/modifiedtime.js"></script>    
+</head>
+  <body>
+    <header>
+        <h1>Improve ${townName | h,trim} Pages - Massachusetts Trails</h1>
+        <%include file="townnavbar.html"/>
+                
+        <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li><a href="/towns/index.html">Towns</a></li>
+        <li><a href="/towns/${townName | url}.html">${townName | h,trim}</a></li>
+        <li><a href="/towns/${townName | url}/improve_.html">Improve</a></li>
+        </ol> 
+    </header>
+    
+    <div class="section">
+        <h2>Properties With No Name</h2>
+        <p>Please add a <a href="https://wiki.openstreetmap.org/wiki/Key:name">name</a> tag to these OpenStreetMap entities</p>
+        <p>               
+        % for a in propertyList:
+        % if ( len(a['propertyName']) == 0 ) :                
+        <a href="${a['propertyPageName']}.html">${ "{0:0.1f}".format(a['propertyArea']) } acres</a>, 
+        % endif            
+        % endfor
+        </p>
+    
+        <h2>Properties With No Owner</h2>
+        <p>Please add an <a href="https://wiki.openstreetmap.org/wiki/Key:owner">owner</a> tag to these OpenStreetMap entities</p>
+        <p>               
+        % for a in propertyList:
+        % if ( len(a['ownerName']) == 0 ) :                
+        % if ( len(a['propertyName']) > 0 ) :                
+        <a href="${a['propertyPageName']}.html">${a['propertyName'] | h,trim}</a>
+        % else :
+        <a href="${a['propertyPageName']}.html">No Name</a>            
+        % endif
+        ,
+        % endif
+            
+        % endfor
+        </p>
+
+        <h2>Properties With No Access</h2>
+        <p>Please add an <a href="https://wiki.openstreetmap.org/wiki/Key:access">access</a> tag to these OpenStreetMap entities</p>
+        <p>               
+        % for a in propertyList:
+        % if ( len(a['rawAccess']) == 0 ) :                
+        % if ( len(a['propertyName']) > 0 ) :                
+        <a href="${a['propertyPageName']}.html">${a['propertyName'] | h,trim}</a>
+        % else :
+        <a href="${a['propertyPageName']}.html">No Name</a>            
+        % endif
+        ${ "{0:0.1f}".format(a['propertyArea']) } acres,
+        % endif
+            
+        % endfor
+        </p>
+
+        <h2>Properties With An Unknown Access Tag Value</h2>
+        <p>Please verify that the <a href="https://wiki.openstreetmap.org/wiki/Key:access">access</a> tag value for these entities is valid. www.mass-trails.org 
+        supports the access tag values on properties of yes, public, customers, no, private, or permissive.</p>
+        <p>               
+        % for a in propertyList:
+        % if ( len(a['rawAccess']) > 0 and a['rawAccess'] != "yes" and a['rawAccess'] != "public" and a['rawAccess'] != "no" and a['rawAccess'] != "private" and a['rawAccess'] != "permissive" and a['rawAccess'] != "customers") :
+        % if ( len(a['propertyName']) > 0 ) :                
+        <a href="${a['propertyPageName']}.html">${a['propertyName'] | h,trim}</a>
+        % else :
+        <a href="${a['propertyPageName']}.html">No Name</a>            
+        % endif
+        - ${a['rawAccess']} ${ "{0:0.1f}".format(a['propertyArea']) } acres,
+        % endif
+            
+        % endfor
+        </p>
+
+
+        <h2>Properties With Multiple OpenStreetMap Entities</h2>
+        <p>These properties have the same name but have several OpenStreetMap entities. Ideally, each property should exist as 
+            one way or one relation. Please consider merging them together.</p>
+        <p>               
+        % for a in propertyList:
+        % if ( a['osmCount'] > 1 ) :                
+        % if ( len(a['propertyName']) > 0 ) :                
+        <a href="${a['propertyPageName']}.html">${a['propertyName'] | h,trim} </a>
+        % else :
+        <a href="${a['propertyPageName']}.html">No Name</a>            
+        % endif
+        - ${a['osmCount']} Entities, 
+        % endif
+            
+        % endfor
+        </p>
+        
+        <h2>Properties Without Websites</h2>
+        <p>Please add an <a href="https://wiki.openstreetmap.org/wiki/Key:website">website</a> tag to these OpenStreetMap entities</p>
+        <p>               
+        % for a in propertyList:
+        % if ( len(a['website']) == 0 ) :                
+        % if ( len(a['propertyName']) > 0 ) :                
+        <a href="${a['propertyPageName']}.html">${a['propertyName'] | h,trim}</a>
+        % else :
+        <a href="${a['propertyPageName']}.html">No Name</a>            
+        % endif
+        ${ "{0:0.1f}".format(a['propertyArea']) } acres,
+        % endif
+            
+        % endfor
+        </p>
+        <p>This site is using OpenStreetMap data from <b id="osmDataTime"></b> EST.</p>        
+        <p></p>
+    </div>
+
+    <%include file="townfooter.html"/>
+    
+    <%include file="navmenu.html"/>
+
+    <script>
+    var elem = document.getElementById('osmDataTime');
+    elem.innerHTML = osmDataTime         
+    </script>
+          
+</body>
+
+</html>
+
+

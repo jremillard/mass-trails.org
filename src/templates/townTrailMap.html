@@ -1,0 +1,207 @@
+<%!
+import urllib.parse
+
+def url(text):
+    return urllib.parse.quote(text.encode('utf-8'))
+%>
+<html lang="en">
+<head>
+    <%include file="headerall.html"/>
+        
+    <Title>${townName} Open Space Property Map - Massachusetts Trails</Title>
+
+    <link rel='stylesheet' href='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css' >
+
+    <script src='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.js'></script>
+
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.min.js'></script>
+    <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.mapbox.css' rel='stylesheet' />
+    <!--[if lt IE 9]>
+    <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.ie.css' rel='stylesheet' />
+    <![endif]-->
+    <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/css/font-awesome.min.css' rel='stylesheet' />
+                
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+    <script src="/scripts/leaflet.easyPrint.js"></script>   
+
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    
+    <style>	
+    body {
+        width:100%;
+    }            
+    #map {		
+        height: 100%;				
+        margin: 0;
+    }
+    </style>    
+
+</head>
+        
+    <html>
+    <body>
+        
+    <header>
+        <%include file="townnavbar.html"/>
+            
+        <ol class="breadcrumb">
+            <li><a href="/">Home</a></li>
+            <li><a href="/towns/index.html">Towns</a></li>
+            <li><a href="/towns/${townName | url}.html">${townName | h,trim}</a></li>
+            <li><a href="/towns/${townName | url}/TrailMap_.html">Trail Map</a></li>
+        </ol>
+    </header>
+    
+    <div id="map"></div>
+                                    
+    <script>
+            var townBoundary = ${townBoundary}      
+
+            var properties = [
+            % for p in propertyList:
+                ${p}
+                % if loop.reverse_index > 0 :
+                ,
+                % endif                    
+            % endfor
+            ];                
+    </script>
+                
+    <script>
+    function main() {
+            
+        var osmAttrib = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+        var osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        var osm = new L.TileLayer(osmUrl,{ attribution: osmAttrib} );		
+
+        var mapboxAttrib = '<a href="http://www.mapbox.com/">Mapbox</a>'
+        
+        var massTrailsUrl='https://api.mapbox.com/styles/v1/mass-trails/cjcmqvcns1o0g2sn6ncwswjiu/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFzcy10cmFpbHMiLCJhIjoiY2phbmFqdzdyMDJndDM0cWtsM3p2OGFlciJ9.xIjcvh4Qpuda9seHns_eXg';
+        var massTrail = new L.TileLayer(massTrailsUrl, { attribution: mapboxAttrib} );		
+        
+        var satUrl='https://api.mapbox.com/styles/v1/mass-trails/cjcmt2j1l1sry2sp68a5fsz7e/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFzcy10cmFpbHMiLCJhIjoiY2phbmFqdzdyMDJndDM0cWtsM3p2OGFlciJ9.xIjcvh4Qpuda9seHns_eXg'
+        var sat = new L.TileLayer(satUrl,{ attribution: mapboxAttrib} );		
+
+        var OpenTopoMapAttrib = 'Kartendaten: © OpenStreetMap-Mitwirkende, SRTM | Kartendarstellung: © <a href="https://opentopomap.org/about">OpenTopoMap</a> (CC-BY-SA)'
+        var OpenTopoMapUrl = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
+        var OpenTopoMap = new L.TileLayer(OpenTopoMapUrl,{ attribution: OpenTopoMapAttrib} );		
+
+        var outdoorsAttrib =  'Maps &copy; <a href="http://www.thunderforest.com">Thunderforest</a>, Data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+        var outDoorsMapUrl = 'https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=c247083b920d4168a181ef276777c268'
+        var outDoorsMap = new L.TileLayer(outDoorsMapUrl,{ attribution: outdoorsAttrib} );		
+        
+        var propertyBorderStyle = {
+            "color": "#000000",
+            "weight": 2,
+            "opacity": 0.5,
+            "fill":false
+            };
+                    
+        var borderLayer = L.geoJson(townBoundary, { style:propertyBorderStyle })
+
+
+        function onEachFeature(feature, layer) {
+            // does this feature have a property named popupContent?
+            if (feature.properties ) {
+                var popupStr = ""
+                var toolTip = ""
+
+                if ( feature.properties.name) { 
+                    popupStr = "Property <a href=\"" + feature.properties.propertyPageName + ".html\">" + feature.properties.name + "</a>"
+                    toolTip = "Property " + feature.properties.name
+                } else {
+                    popupStr = "Property <a href=\"" + feature.properties.propertyPageName + ".html\">No Name</a>"
+                    toolTip = "Property Has No Name"
+                }
+
+                if ( feature.properties.ownerName) { 
+                    popupStr += "<br>Owner <a href=\"/landowners/" + feature.properties.normalizedOwnerName + ".html\">" + feature.properties.ownerName + "</a>";
+                    toolTip += ", Owner " + feature.properties.ownerName
+                }
+
+                if ( feature.properties.website) {
+                    popupStr += "<br>Official Website <a href=\"" + feature.properties.website + "\">" + feature.properties.website + "</a>";
+                }
+                
+                layer.bindPopup(popupStr)
+                //layer.bindTooltip(toolTip)
+            }
+        }            
+
+        var propertyStyle = {
+            "color":"#000000",
+            "weight": 0.25,
+            "fillOpacity": 1,
+            "fill":false            
+            };
+    
+        var propLayer =  L.geoJson(properties, { style:propertyStyle })
+
+        var propertyStyleClick = {
+            "color": "#FFFFFF",
+            "weight": 2,
+            "opacity": 0.001
+            };
+
+        var propLayerClickable =  L.geoJson(properties, { onEachFeature: onEachFeature, style:propertyStyleClick })
+
+        // create leaflet map
+        var map = L.map('map', {
+            zoomControl: true,
+        });
+        map.attributionControl.setPrefix('');
+
+
+        borderLayer.addTo(map)            
+        propLayer.addTo(map)
+            
+        // set basemaps
+        var baseMaps = {
+            "Trails": massTrail,
+            "OpenTopoMap":OpenTopoMap,
+            "Outdoors": outDoorsMap,
+            "Satellite":sat,
+            "OpenStreetMap": osm,
+        };
+
+
+        L.control.layers(baseMaps,null,null).addTo(map);
+
+        var layerOptions = { 
+            "Boundary" : borderLayer
+        };
+        
+        var layerStyle = { 
+            };
+
+        if ( screen.width > 1024) {
+            layerStyle = { 
+                "collapsed":false
+            };
+        }
+    
+        L.control.layers(baseMaps,layerOptions,layerStyle).addTo(map);
+    
+        L.control.scale().addTo(map);
+    
+        massTrail.addTo(map);
+                                                    
+        map.fitBounds(borderLayer.getBounds())
+
+        propLayerClickable.addTo(map)
+        
+        // remove leaflet attribution
+        map.attributionControl.setPrefix('')
+    
+    }
+    
+    window.onload = main;
+    </script>
+                                
+    <%include file="navmenu.html"/>
+                                 
+</body>
+</html>
+
+

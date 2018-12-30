@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<%!
+import urllib.parse
+
+def url(text):
+    return urllib.parse.quote(text.encode('utf-8'))
+%>
+<html lang="en">
+    <head>
+        <%include file="headerall.html"/>
+        <title>Improve ${name | h,trim} - ${townName | h,trim} Page - Massachusetts Trails</title>
+        <meta name="robots" content="noindex">
+        <script src="/scripts/modifiedtime.js"></script>
+    </head>
+
+  <body>
+    <header>
+        % if ( len(name) > 0 ) :
+        <h1>Improve The ${name | h,trim} Page</h1>
+        % else :
+        <h1>Improve Property Page</h1>        
+        % endif
+        <%include file="townnavbar.html"/>
+
+        <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li><a href="/towns/index.html">Towns</a></li>
+        <li><a href="/towns/${townName | url}.html">${townName | h,trim}</a></li>
+        <li><a href="/towns/${townName | url}/${normalizedName}.html">${name | h,trim}</a></li>
+        </ol> 
+    </header>
+
+    <div class="section">
+
+        <h2>OpenStreetMap Social Resources</h2>
+        
+        <p>Reaching out to other OpenStreetMap members to discuss this or other parcels is a great way to improve the map. 
+        For conservation focused mapping activity, the best resource is the       
+            <a href="https://lists.openstreetmap.org/listinfo/talk-us-massachusetts">MA Talk mailing list</a>. It just for Massachusetts and it has 
+            many conservation focused people as members. 
+
+            The OpenStreetMap website has two ways of communicating. You can ask a question or leave a comment on any changeset 
+            with the <a href="https://blog.openstreetmap.org/2014/11/02/introducing-changeset-discussions/">changeset discussion</a> feature. 
+            Or you can message members directly using the osm user name.
+            
+            Finally, the OSM Wiki has a 
+            <a href="https://wiki.openstreetmap.org/wiki/Massachusetts/Conservation">Massachusetts Conservation</a> page 
+            for discussing specific issues for OSM conservation mapping in Massachusetts. 
+        </p>
+        
+        <h2>Property Location and Shape</h2>
+
+        <p> If the location or the shape of the property needs improvement, please edit the geometry of these these OpenStreetMap entities: 
+
+        % for a in osmIds:
+        
+            % if ( a[0] == 'W' ) :
+                <a href="https://www.openstreetmap.org/way/${a[1:]}">${a[1:]}</a>
+            % else :
+                <a href="https://www.openstreetmap.org/relation/${a[1:]}">${a[1:]}</a>
+            % endif
+                            
+        % endfor                 
+
+        <p>Many open space parcels originated from an import of the 
+            <a href="https://docs.digital.mass.gov/dataset/massgis-data-protected-and-recreational-openspace">MassGIS Data: Protected and Recreational OpenSpace</a> 
+            dataset in 2008. At the time, this data set was created from tracing low resolution paper maps. 
+            Therefor, the size and location of virtually all of the data imported in 2008 is often 100's of feet off. The 
+            easiest was of improving the locations of this older data is the OSM The MassGIS L3 Parcel imaging layer.
+
+        <p>This layer can be added to your editor for reference - <b>http://tile.osm.osuosl.org/tiles/massgis_parcels/{zoom}/{x}/{y}.png</b></p>
+
+        <p>If another mapper has adjusted the geometry after 2008, they may know that the L3 parcels layer is inaccurate at that location. 
+           If you are not sure, message them in OpenStreetMap either directly or via the changeset discussion feature to discuss the parcel.
+                                                
+        <h2>OpenStreetMap Property Tags</h2>        
+        <ul>
+                        
+            <li><a href="https://wiki.openstreetmap.org/wiki/Key:name">name</a> - 
+                    % if ( len(name) > 0 ) :
+                    OK - ${name | h,trim}
+                    % else :
+                    <b>Missing</b> - add a name tag to :
+                    % for a in osmIds:
+                    
+                        % if ( a[0] == 'W' ) :
+                            <a href="https://www.openstreetmap.org/way/${a[1:]}">${a[1:]}</a>
+                        % else :
+                            <a href="https://www.openstreetmap.org/relation/${a[1:]}">${a[1:]}</a>
+                        % endif
+                                        
+                    % endfor         
+                    % endif             
+            </li>
+
+            <li><a href="https://wiki.openstreetmap.org/wiki/Key:owner">owner</a> - 
+                    % if ( len(ownerName) > 0 ) :
+                    OK - ${ownerName | h,trim} 
+                    % else :
+                    <b>Missing</b> - add a owner tag to :
+                    % for a in osmIds:
+                    
+                        % if ( a[0] == 'W' ) :
+                            <a href="https://www.openstreetmap.org/way/${a[1:]}">${a[1:]}</a>
+                        % else :
+                            <a href="https://www.openstreetmap.org/relation/${a[1:]}">${a[1:]}</a>
+                        % endif
+                                        
+                    % endfor         
+                    % endif            
+            </li>
+
+            <li><a href="https://wiki.openstreetmap.org/wiki/Key:access">access</a> - 
+                    % if ( rawAccess == "yes" or rawAccess == "public" or rawAccess == "no" or rawAccess == "private" or rawAccess == "permissive" or rawAccess == "customers"):
+                    OK - ${rawAccess | h,trim}
+                    %else :
+                    % if ( len(rawAccess) > 0):
+                        ${rawAccess | h,trim} - <b>is not a recognized value please review.</b> www.mass-trails.org 
+                        supports the access tag values on properties of yes, public, customers, no, private, or permissive.
+                    % else: 
+                        <b>Missing</b> - add access tag to :
+                    
+                        % for a in osmIds:
+                        
+                            % if ( a[0] == 'W' ) :
+                                <a href="https://www.openstreetmap.org/way/${a[1:]}">${a[1:]}</a>
+                            % else :
+                                <a href="https://www.openstreetmap.org/relation/${a[1:]}">${a[1:]}</a>
+                            % endif
+                                            
+                        % endfor                     
+                    % endif                     
+                    % endif
+            
+            </li>
+            
+            <li><a href="https://wiki.openstreetmap.org/wiki/Key:website">website</a> - 
+                    % if ( len(website) > 0 ) :
+                    OK - <a href=${website}>${website | h,trim}</a>
+                    % else :
+                    <b>Missing</b> - add a website tag to :
+                    % for a in osmIds:
+                    
+                        % if ( a[0] == 'W' ) :
+                            <a href="https://www.openstreetmap.org/way/${a[1:]}">${a[1:]}</a>
+                        % else :
+                            <a href="https://www.openstreetmap.org/relation/${a[1:]}">${a[1:]}</a>
+                        % endif
+                                        
+                    % endfor   
+                    % endif                  
+            </li>
+            
+            <li><a href="https://wiki.openstreetmap.org/wiki/Key:wikipedia">wikipedia</a> - 
+                    % if ( len(wikipedia) > 0 ) :
+                    OK - <a href="https://en.wikipedia.org/wiki/${wikipedia | url}?uselang=en-US">${wikipedia}</a> 
+                    % else :
+                    <b>Missing</b> - add a wikipedia tag to :
+                    % for a in osmIds:
+                    
+                        % if ( a[0] == 'W' ) :
+                            <a href="https://www.openstreetmap.org/way/${a[1:]}">${a[1:]}</a>
+                        % else :
+                            <a href="https://www.openstreetmap.org/relation/${a[1:]}">${a[1:]}</a>
+                        % endif
+                                        
+                    % endfor    
+                    % endif                 
+            </li>
+            
+            <li><a href="https://wiki.openstreetmap.org/wiki/Key:start_date">start_date</a> - 
+                    % if ( len(startDate) > 0 ) :
+                    OK - ${startDate | h,trim} 
+                    % else :
+                    <b>Missing</b> - add a start_date tag, indicating when the property was purchased to :
+                    % for a in osmIds:
+                    
+                        % if ( a[0] == 'W' ) :
+                            <a href="https://www.openstreetmap.org/way/${a[1:]}">${a[1:]}</a>
+                        % else :
+                            <a href="https://www.openstreetmap.org/relation/${a[1:]}">${a[1:]}</a>
+                        % endif
+                                        
+                    % endfor        
+                    % endif              
+            </li>
+
+            <li>
+                Object Count - 
+
+                % if ( len(osmIds) > 1) :
+                Please combine these OpenStreetMap entities - 
+                % for a in osmIds:
+                
+                    % if ( a[0] == 'W' ) :
+                        <a href="https://www.openstreetmap.org/way/${a[1:]}">${a[1:]}</a>
+                    % else :
+                        <a href="https://www.openstreetmap.org/relation/${a[1:]}">${a[1:]}</a>
+                    % endif
+                                    
+                % endfor                     
+
+                % else :
+                    OK - Only one entity for this property.
+                % endif 
+            </li>
+                                    
+        </ul>
+
+        <h2>Trails</h2>        
+            <p>Missing trails - Please add them to OpenStreetMap. 
+            <p>A trail is on the map that does not exist  - If the trail really does not exist, simply delete it. 
+                Note that a trail simply being on private property is not a reason to delete it, but 
+                setting access=private may be appropriate. </p>                  
+            <p>A sidewalk is shown as trails - Add a surface=paved tag and/or footway=sidewalk tag to the OpenStreetMap entity.</p>
+            <p>A trail is shown as a sidewalk - Add a surface=ground tag to the OpenStreetMap entity.</p>
+            <p>A trail is on OpenStreetMap, but not shown in mass-trails. Try adding surface=ground, and check the access tag.</p>
+            <p>A bike trail is shown as a trail or sidewalk - Use the highway=cycleway tag on the OpenStreetMap Entity.            
+            <p>Incorrect access (public, private, etc) - On www.mass-trails.org, trails that don't have access tags 
+                    inherit the access tag of the property. Since it is less work to tag the properties, start off
+                    by verifying that property access tag is correct.
+                
+        <h2>Parking</h2>
+            <p>Missing Car Parking - Add the parking area to OpenStreetMap, if the property is open to the 
+               public please add access=yes, or access=permissive to the OpenStreetMap parking entity.
+            <p>Private Car Parking - If a parking area is listed as available for the property, but shouldn't be, 
+                add access=customer, or access=private to the OpenStreetMap parking entity.                    
+        
+    </div>
+
+    <footer>
+    <p>This site is using OpenStreetMap data from <b id="osmDataTime"></b> EST.</p>
+    <p>OpenStreetMap Links: 
+    % for a in osmIds:
+
+    % if ( a[0] == 'W' ) :
+        <a href="https://www.openstreetmap.org/way/${a[1:]}">${a[1:]}</a>
+    % else :
+        <a href="https://www.openstreetmap.org/relation/${a[1:]}">${a[1:]}</a>
+    % endif
+    
+    % if loop.reverse_index > 0 :
+    - 
+    % endif
+
+    % endfor        
+    </p>
+    
+    <p>Searches: 
+            % if ( len(ownerName) > 0 ) :
+                <a href="https://www.google.com/search?q=${name | url}+${ownerName}+${townName | url}+MA">
+            % else:
+                <a href="https://www.google.com/search?q=${name | url}+Conservation+Land+${townName | url}+MA">
+            % endif
+            Google Search For Property</a>
+            , 
+            % if ( len(ownerName) > 0 ) :
+                <a href="https://www.google.com/search?q=${name | url}+${ownerName}+Map+${townName | url}+MA">
+            % else:
+                <a href="https://www.google.com/search?q=${name | url}+Conservation+Land+Map+${townName | url}+MA">
+            % endif
+            Google Search For Map</a> 
+            ,
+            
+            % if ( len(ownerName) > 0 ) :
+                <a href="https://www.bing.com/search?q=${name | url}+${ownerName}+${townName | url}+MA">
+            % else:
+                <a href="https://www.bing.com/search?q=${name | url}+Conservation+Land+${townName | url}+MA">
+            % endif
+            Bing Search For Property</a>
+            , 
+            % if ( len(ownerName) > 0 ) :
+                <a href="https://www.bing.com/search?q=${name | url}+${ownerName}+Map+${townName | url}+MA">
+            % else:
+                <a href="https://www.bing.com/search?q=${name | url}+Conservation+Land+Map+${townName | url}+MA">
+            % endif
+            Bing Search For Maps</a>     
+
+    </footer>
+    
+    <%include file="navmenu.html"/>
+
+    <script>
+      var elem = document.getElementById('osmDataTime');
+      elem.innerHTML = osmDataTime         
+    </script>
+
+  </body>
+  
+</html>
+
+

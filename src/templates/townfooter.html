@@ -1,0 +1,28 @@
+<%!
+import urllib.parse
+
+def url(text):
+    return urllib.parse.quote(text.encode('utf-8'))
+%>
+
+    <footer>
+        <p>Adjacent Towns:
+        % for a in adjacent:
+            <a href="/towns/${a}.html">${a | h,trim}</a></li>
+            % if loop.reverse_index > 0 :
+            - 
+            % endif
+        % endfor
+        
+        - ZIP Code
+        % for a in zips:
+        ${a | h,trim} 
+        % if loop.reverse_index > 0 :
+        - 
+        % endif
+        % endfor      
+        </p>  
+        <p><a href="/towns/${townName | url}/improve_.html">Please Help Improve This Page!</a></p>
+        
+        <%include file="attributions.html"/>
+    </footer>

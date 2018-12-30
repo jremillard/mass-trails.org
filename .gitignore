@@ -1,0 +1,12 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+zip
+*.pbf
+src/properties-osm.geojson
+src/trails-osm.geojson
+src/findwebsites.py
+src/*.sqlite
+src/profile.csv

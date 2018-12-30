@@ -1,0 +1,145 @@
+TODO.txt
+
+- property page 
+    - calculate sunrise/sunset when hours are against sunrise and sunset
+    - pdf of map
+    - semicolon in names?
+    - alt_name
+
+- property print page, mostly the property trail map and parking.
+
+- owner index 
+  - total amount of conservation land in MA, % of state.
+
+- town property map 
+    - show l3 parcel layer in full screen town map
+    - ownership color map
+    - property types color map
+    - pdf of map
+
+- landowner map
+  - allow user to click on properties on land owner map.
+
+- nav bar should have search for zip
+
+- other trail maps
+  - render based on color
+  - mnt bike map
+
+- trails
+    - make sure foot=anything is used before access= for trails.
+    - lengths bike trails - rank 
+    - length mtn bike trails - rank 
+    - total mtn bike trail vert - rank
+    - length of non-private trails - rank 
+
+- OSM QA page 
+    - alternate spellings of owner tags. 
+    - bad width tag on trails 
+    - bad surface tag
+    - add an OSM note?
+
+- Scripts
+  - weekly master update script.
+  - deal with overlapping properties in area calculations
+
+----------------------------------------------------
+
+- crawl 
+  - make list of interesting website
+      - extract domains from OSM
+      - full crawl of "interesting" domains, see who they link too.
+    
+  - crawl wikipedia for properties
+
+  - show organization website that are not landowners
+    - find what towns organization are active in (if they are not landowners) 
+
+  - find landowner organization website, with full google search.
+  - find property website 
+    - google search name + town, classify with bag of words, pages. 
+
+  - find maps
+    - full crawl of "interesting" domains.
+    - see if firefox headless works on pdf, images, and javascript/leaflet heavy sites.
+    - PR maps pages from firefox headless
+  
+  - expose google search of "interesting" domains.
+
+
+--------------------------------------------------
+
+- OSM tasks
+    - import missing conservation land into OSM from MassGIS
+    - combine parcels
+    - access restricted on properties
+    - cleanup owner tag in OSM
+-------------------------------------------------------
+
+
+* general
+
+layers are in different orders with different options on various pages.
+Not sure why, but seems like it should be consistent.
+
+On some pages, you list "type" and that's fine, but it would be  cool to
+have the properties color-coded by type, perhaps using the OSM carto
+color plus the dark green they should use for conservation.
+
+You don't seem to address farm, and that's funny, as there are farms
+with and without APR, and they are sort of "open space" but not "public
+open space".  But that blurs a plain CR with landuse=conservation with
+one that has town ownership or access.
+
+How you get from OSM to the website is complicated, so it would be great
+to have a "data origins and processing" page (need better name) that
+explains how you treat the tags and is careful to point out where you
+depart from the carto or standard approach.   Also a link to the code.
+I want a copy in case you get hit by a bus :-)
+
+I wonder what you think about coloring the trails.
+
+This points out that we really need a way to have major/minor trails.
+Especially if people add crud from Strava, it cna then be demoted if it
+is not substantial.
+
+On this apge
+
+https://www.mass-trails.org/towns/Stow/stowtownforest.html
+
+I find that the map does not fit on my (2014 mac air) screen, whereas
+most sites it seems to fit the window somehow.  So it's really awkward
+to scroll since I have to use the margin, and then I lose the layers
+selector.
+
+not sure how to fix.
+
+* https://www.mass-trails.org/towns/Stow/stowtownforest_improve.html
+
+presumably much of this is boilerplate
+
+I have a real concern about Strava, basically that people add trails
+because there is a trace on Strava, without actually seeing that there
+is a trace on the ground.
+
+Also, there is the delicate matter of mapping on private land where the
+landowner does not want to show up on the map.   I realize this is
+complicated, but basically my point is that a mapper should make a
+decision based on on-the-ground knowledge that something should be added,
+and then Strava can be used to refine geometry.   I have seen traces on
+Strava that are definittely not trails, and look like shortcuts home for
+individual mountain bikers.
+
+So I would recommend just dropping the notion of Strava here.  But if
+not, then "You should only add trails that you have verified in person
+actually exist.  After having physically observed a trail, Strava's
+heatmap can be helpful in refining geometry.  Be sure to add access
+tags, such as access=no if the property owner/manager forbids going off
+official trails."
+
+https://www.mass-trails.org/towns/Stow.html
+
+in map, i see leaflet and mapbox, but OSM attribution is missing.  I see
+it at the bottom, so really it's ok, but I think people like to see it
+in the map place with the others.
+

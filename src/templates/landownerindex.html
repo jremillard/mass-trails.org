@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<%!
+import urllib.parse
+
+def url(text):
+    return urllib.parse.quote(text.encode('utf-8'))
+%>
+<html lang="en">
+
+<head>
+    <%include file="headerall.html"/>
+              
+    <script src="/scripts/tablesort.js"></script>   
+        
+    <Title>Major Open Space Landowners in Massachusetts - Massachusetts Trails</Title>
+</head>
+<body>
+    <header>
+        <nav>
+        <a href="/index.html">Welcome</a>
+        <a href="/towns/index.html">Towns</a>        
+        <a href="/map/ma.html">Statewide Trail Map</a>
+        <a href="/search.html">Search</a>
+        <a href="/contribute.html">Contribute</a>
+        </nav>
+    
+        <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li><a href="/landowners/index.html">Land Owners</a></li>
+        </ol> 
+    </header>
+
+    <h1>Major Open Space Land Owners in Massachusetts</h1>
+        
+    <table id="landownerTableId">
+    <tr>
+        <th onclick="sortTable('landownerTableId',0,false)">Name</th>
+        <th onclick="sortTable('landownerTableId',1,true)">Area Square Miles</th>      
+        <th onclick="sortTable('landownerTableId',2,true)">Area Acres</th>      
+        <th onclick="sortTable('landownerTableId',3,true)">Public Trails Miles</th>      
+    </tr>
+    % for owner in landOwnerList:
+    % if owner['conservationAreaSqMiles'] > 0.10 or owner['publicTrailLength'] > 2 :
+    <tr>
+        <td><a href="/landowners/${owner['normalizedName']}.html">${owner['name'] | h,trim}</a></td>
+        <td>${ "{0:0.1f}".format(owner['conservationAreaSqMiles']) }</td>        
+        <td>${ "{0:0.1f}".format(owner['conservationAreaSqMiles']*640) }</td>        
+        <td>${ "{0:0.1f}".format(owner['publicTrailLength']) }</td>        
+    </tr>
+    % endif 
+    % endfor
+    </table>
+</body>
+  
+</html>
+
+

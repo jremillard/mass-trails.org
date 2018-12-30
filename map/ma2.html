@@ -1,0 +1,183 @@
+<html lang="en">
+
+<head>
+    <Title>Massachusetts Trails - Trail Map</Title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" >
+
+    
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.51.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.51.0/mapbox-gl.css' rel='stylesheet' />
+
+    <link rel="stylesheet" href="../style.css" >
+            
+    <style>	
+    body {
+        width:100%;
+    }
+    #map {		
+        height: 95%;				
+        margin: 0;
+    }
+    </style>    
+
+</head>
+
+<html>
+<body>
+    
+    <div class="page">
+        <header role="banner">
+                <header>
+                        <nav>
+                        <a href="../index.html">Welcome</a>
+                        <a href="/towns/index.html">Towns</a>                                            
+                        <a class="current" href="ma.html">Statewide Trail Map</a>
+                        <a href="/search.html">Search</a>                                            
+                        <a href="../contribute.html">Contribute</a>
+                        </nav>
+                </header>
+        <div id="map" />
+        <div id='map-layer-menu'>
+            View 
+            <input id='basic' type='radio' name='rtoggle' value='basic' checked='checked'>
+            <label for='basic'>Trail Map</label>
+            <input id='osm' type='radio' name='rtoggle' value='osm'>
+            <label for='osm'>OpenStreetMap</label>
+            <input id='satellite' type='radio' name='rtoggle' value='satellite'>
+            <label for='satellite'>Satellite</label>
+        </div>        
+</body>
+
+
+<script>
+
+    if (!mapboxgl.supported()) {
+        window.location.replace("/map/ma.html");                
+    }
+    else {
+
+    mapboxgl.accessToken = 'pk.eyJ1IjoibWFzcy10cmFpbHMiLCJhIjoiY2phbmFqdzdyMDJndDM0cWtsM3p2OGFlciJ9.xIjcvh4Qpuda9seHns_eXg';
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mass-trails/cjcmqvcns1o0g2sn6ncwswjiu',
+        center: [-71.97693,42.35734], 
+        zoom: 8
+    });
+
+    // disable map rotation using right click + drag
+    map.dragRotate.disable();
+
+    // disable map rotation using touch rotation gesture
+    //map.touchZoomRotate.disableRotation();
+
+    var layerList = document.getElementById('map-layer-menu');
+    var inputs = layerList.getElementsByTagName('input');
+
+    function switchLayer(layer) {
+        var layerId = layer.target.id;
+        if ( layerId == 'satellite')  {
+            map.setStyle('mapbox://styles/mass-trails/cjcmt2j1l1sry2sp68a5fsz7e');
+        }
+        if ( layerId == 'basic')  {
+            map.setStyle('mapbox://styles/mass-trails/cjcmqvcns1o0g2sn6ncwswjiu');
+        }
+        if ( layerId == 'osm')  {
+            map.setStyle({
+                "version": 8,
+                "sources": {
+                    "raster-tiles": {
+                        "type": "raster",
+                        "tiles":["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png", "http://b.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+                        "tileSize": 256
+                    }
+                },
+                "layers": [{
+                    "id": "simple-tiles",
+                    "type": "raster",
+                    "source": "raster-tiles",
+                    "minzoom": 0,
+                    "maxzoom": 22
+                }]
+            });
+        }
+    }
+
+    for (var i = 0; i < inputs.length; i++) {
+        inputs[i].onclick = switchLayer;
+    }
+
+    map.on('load', function() {
+    map.on('click', 'osm-openspace', function (e) { 
+        if ( e.features[0].properties.name.length > 0 ) {
+        popup = '<a href = "' + 
+            e.features[0].properties.url + 
+            '">' + 
+            e.features[0].properties.name + 
+            '</a> in <a href="/towns/' + 
+            e.features[0].properties.town +
+            '.html">' + 
+            e.features[0].properties.town +
+            '</a>'
+
+        if ( e.features[0].properties.website.length > 0) {
+            popup = popup + '<br><a href="' + 
+                e.features[0].properties.website + 
+            '">Official Website</a>'                
+        }
+
+        if ( e.features[0].properties.owner.length > 0) {
+            popup = popup + '<br>Owner <a href="' + 
+                e.features[0].properties.ownerUrl + 
+            '">' + 
+            e.features[0].properties.owner +
+            '</a>'                    
+        }
+        
+        new mapboxgl.Popup()
+            .setLngLat(e.lngLat)
+            .setHTML(popup)
+            .addTo(map);
+        }
+    });
+
+    map.on('mouseenter', 'osm-openspace', function () {
+        map.getCanvas().style.cursor = 'pointer';
+    });
+    map.on('mouseleave', 'osm-openspace', function () {
+        map.getCanvas().style.cursor = '';
+    });
+
+    });
+
+    
+    function updateURL() {
+        var pos = map.getCenter();
+        var newFragment = "#map=" + map.getZoom() + "/" + pos.lat.toPrecision(7) + "/" + pos.lng.toPrecision(7);
+        history.replaceState({},'',newFragment);
+    }
+    
+    if ( location && location.hash.indexOf("#map=") == 0 ) {
+        var url = location.hash.slice(5);
+        var ll = url.split('/');
+        map.setCenter( [ll[2],ll[1]] );
+        map.setZoom(ll[0]); 		
+    } else {
+        var pos = map.getCenter();
+        var newFragment = "#map=" + map.getZoom() + "/" + pos.lat.toPrecision(7) + "/" + pos.lng.toPrecision(7);
+        history.replaceState({},'',newFragment);
+    }
+                       
+    map.on('moveend', updateURL );
+    map.on('zoomend', updateURL );
+    
+    
+    }
+    </script>
+
+</html>
+
+        
+        
+
+

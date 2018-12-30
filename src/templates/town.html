@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<%!
+import urllib.parse
+
+def url(text):
+    return urllib.parse.quote(text.encode('utf-8'))
+%>
+
+<html lang="en">
+<head>
+    <%include file="headerall.html"/>
+    <%include file="headerleaflet.html"/>
+            
+    <Title>${townName | h,trim} - Massachusetts Trails</Title>
+    <meta name="Description" content="${townName | h,trim} Massachusetts - Trail maps, open space property map, conservation parcel map, and open space landowner list.">
+</head>
+<body>
+<header>
+    <h1>${townName | h,trim} - Mass Trails</h1>
+    <%include file="townnavbar.html"/>
+        
+    <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li><a href="/towns/index.html">Towns</a></li>
+        <li><a href="/towns/${townName | url}.html">${townName | h,trim}</a></li>
+    </ol> 
+</header>
+
+<div class="section">
+    <p>${townName | h,trim} has ${ "{0:1.0f}".format(conservationAreaSqMiles) } 
+        square miles of open space, ${ "{0:1.0f}".format(conservationAreaSqMiles/townAreaSqMiles*100.0) }% of the total, 
+        and ${ "{0:1.0f}".format(publicTrailLength) } miles of public trails.
+    </p>
+
+    <p>The major open space properties in ${townName | h,trim} are:
+            % for a in propertyList:
+                % if loop.reverse_index == 0 :
+                and 
+                % endif        
+                % if ( len(a['propertyName']) > 0 ) :                
+                <a href="${townName | url}/${a['propertyPageName']}.html">${a['propertyName'] | h,trim}</a>\
+                % else :
+                <a href="${townName | url}/${a['propertyPageName']}.html">No Name</a>\
+        % endif
+        % if loop.reverse_index > 0 :
+        ,\
+                % endif        
+            % endfor
+        . There are <a href="/towns/${townName | url}/Properties_.html">${len(propertyListFull)}</a> open space properties in total.
+    </p>                
+            
+    <p>The largest open space landowners in ${townName | h,trim} are:
+    % for a in landOwnerList:
+        % if loop.reverse_index == 0 :
+        and 
+        % endif        
+        <a href="/landowners/${a[1]}.html">${a[0] | h,trim}</a>\
+% if loop.reverse_index > 0 : 
+,\
+        % endif        
+    % endfor
+. 
+    </p>
+
+</div>
+
+<div class="section">
+    <H2>${townName | h,trim} - Trail Map</H2>
+    <div class="fixedmap" id="mapidTrail"></div>
+</div>
+
+<div class="section">
+    <h2><a href="/towns/${townName | url}/Owners_.html"></a>Major ${townName | h,trim} Open Space Landowners</h2>
+    <table id="landOwnersTableId">
+    <tr>
+        <th>Landowner</th>
+        <th>Properties</th>
+        <th>Area In ${townName | h,trim} Acres</th>
+    </tr>
+    % for a in landOwnerList:
+    <tr><td><a href="/landowners/${a[1]}.html">${a[0] | h,trim}</a></td>
+        <td>${a[2] | h,trim}</td>
+        <td>${ "{0:1.0f}".format(a[3]) }</td>
+    </tr>
+    % endfor
+    </table>
+
+    <p>See all ${len(landOwnerListFull)} <a href="/towns/${townName | url}/Owners_.html">landowners in ${townName | h,trim}</a></p>
+</div>
+
+<div class="section">
+    <h2>Largest ${townName | h,trim} Open Space Properties</h2>
+    <table class="townProperty">
+    <tr>
+        <th>Landowner</th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Area In ${townName | h,trim} Acres</th>
+        <th>Trails miles</th>
+    </tr>
+    % for a in propertyList:
+        <tr>
+            
+        <td>
+        % if ( len(a['ownerName']) > 0 ) :
+        <a href="/landowners/${a['normalizeOwnerName']}.html">${a['ownerName'] | h,trim}</a>
+        % endif
+        </td>
+
+        <td>
+        % if ( len(a['propertyName']) > 0 ) :                
+        <a href="${townName | url}/${a['propertyPageName']}.html">${a['propertyName'] | h,trim}</a>
+        % else :
+        <a href="${townName | url}/${a['propertyPageName']}.html">No Name</a>        
+        % endif
+        </td>        
+
+        <td>
+                % if (a['propType'] == "conservation"):
+                Conservation
+                % elif (a['propType'] == "park"):
+                Park
+                % elif (a['propType'] == "recreation_ground"):
+                Recreation Ground
+                % else:
+                % endif                        
+        </td>
+        
+        <td>${ "{0:1.0f}".format(a['propertyAreaInTown']) }</td>
+        <td>${ "{0:1.0f}".format(a['publicTrailLength']) }</td>        
+        </tr>
+    % endfor
+    </table>
+
+    <p>See <a href="/towns/${townName | url}/Properties_.html">All ${len(propertyListFull)} properties in ${townName | h,trim}</a></p>
+</div>
+
+<%include file="townfooter.html"/>
+
+<script>
+    var townBoundary = ${townBoundary}      
+    var townLand = ${landInTown}
+</script>
+
+<script>    
+    var propertyMap;
+    var trailMap;
+
+    function initTrailMap() {
+        // set up the map
+        trailMap = new L.Map('mapidTrail',{ zoomControl:false,zoomSnap: 0.25});
+
+        var osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        var osm = new L.TileLayer(osmUrl);		
+
+        var mapboxAttrib = 'For informational purposes only.<br> &copy; <a href="http://www.mapbox.com/">Mapbox</a>'
+        
+        var massTrailsUrl='https://api.mapbox.com/styles/v1/mass-trails/cjcmqvcns1o0g2sn6ncwswjiu/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFzcy10cmFpbHMiLCJhIjoiY2phbmFqdzdyMDJndDM0cWtsM3p2OGFlciJ9.xIjcvh4Qpuda9seHns_eXg';
+        var massTrail = new L.TileLayer(massTrailsUrl, { attribution: mapboxAttrib} );		
+        
+        var satUrl='https://api.mapbox.com/styles/v1/mass-trails/cjcmt2j1l1sry2sp68a5fsz7e/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFzcy10cmFpbHMiLCJhIjoiY2phbmFqdzdyMDJndDM0cWtsM3p2OGFlciJ9.xIjcvh4Qpuda9seHns_eXg'
+        var sat = new L.TileLayer(satUrl,{ attribution: mapboxAttrib} );		
+         
+        // set basemaps
+        var baseMaps = {
+            "Trails": massTrail,
+            "Satellite":sat,
+            "OpenStreetMap": osm,
+        };
+
+        var propertyBorderStyle = {
+            "color": "#000000",
+            "weight": 4,
+            "opacity": 0.4,
+            "fill":false
+            };
+                
+        trailMap.dragging.disable();
+        trailMap.touchZoom.disable();
+        trailMap.doubleClickZoom.disable();
+        trailMap.scrollWheelZoom.disable();
+
+        // Disable tap handler, if present.
+        if (trailMap.tap) {
+            trailMap.tap.disable();
+        }
+            
+        shape = L.geoJSON(townBoundary, { style:propertyBorderStyle })
+        shape.addTo(trailMap)
+        
+        trailMap.fitBounds(shape.getBounds())
+        L.control.layers(baseMaps,null,null).addTo(trailMap);
+        
+        trailMap.addLayer(massTrail);
+
+        trailMap.on('click', function (e) {
+            //window.location.href = 'Interactive_Maps.html#map=' + trailMap.getZoom() + '/' + e.latlng.lat.toPrecision(7) + '/' + e.latlng.lng.toPrecision(7);
+            window.location.href = "/towns/${townName | url}/TrailMap_.html"
+        });
+        
+    }
+
+    function initPropertyMap() {
+        // set up the map
+        propertyMap = new L.Map('mapidProperty',{ zoomControl:false,zoomSnap: 0.25});
+
+        // create the tile layer with correct attribution
+        var osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        var osm = new L.TileLayer(osmUrl);		
+
+        var propertyBorderStyle = {
+            "color": "#000000",
+            "weight": 4,
+            "opacity": 0.4,
+            "fill":false
+            };
+
+        var propertyStyle = {
+            "color":"#000000",
+            "fillColor": "#0000FF",
+            "weight": 1,
+            "fillOpacity": .6,
+            };
+                
+        propertyMap.dragging.disable();
+        propertyMap.touchZoom.disable();
+        propertyMap.doubleClickZoom.disable();
+        propertyMap.scrollWheelZoom.disable();
+
+        // Disable tap handler, if present.
+        if (propertyMap.tap) {
+            propertyMap.tap.disable();
+        }
+            
+        shape = L.geoJSON(townBoundary, { style:propertyBorderStyle })
+        shape.addTo(propertyMap)
+
+        shapeLand = L.geoJSON(townLand, { style:propertyStyle })
+        shapeLand.addTo(propertyMap)
+        
+        propertyMap.fitBounds(shape.getBounds())
+        propertyMap.addLayer(osm);
+
+        propertyMap.on('click', function (e) {
+            //window.location.href = 'Interactive_Maps.html#map=' + map.getZoom() + '/' + e.latlng.lat.toPrecision(7) + '/' + e.latlng.lng.toPrecision(7);
+            window.location.href = "/towns/${townName | url}/OpenSpacePropertyMap_.html"
+        });
+        
+    }
+
+    //initPropertyMap();
+    initTrailMap();
+
+    </script>
+
+    <%include file="navmenu.html"/>
+
+</body>
+</html>
+
+

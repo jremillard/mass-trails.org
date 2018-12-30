@@ -1,0 +1,276 @@
+ 
+/************************************/
+/* generic items section  */
+
+a {
+    color: black;
+}
+
+a:hover {
+    color: #01447e;
+    text-decoration: underline;    
+    text-decoration-style:solid;
+    
+}
+
+@media only screen and (min-width: 1025px) {
+    body {
+        width: 1025px;    
+        margin: 5px;        
+    }
+}
+  
+@media only screen and (max-width: 1024px) {
+    body {
+        width: 96%;    
+        margin: 2%;        
+    }
+}  
+
+html{
+    background: #80be9a; 
+    font-family: 'Ubuntu', sans-serif;
+}
+
+h1 {
+    font-size: 1.7em;
+    text-align: center;
+    color: #1b5031;
+    margin: .1em auto;
+}
+
+h2 {
+    font-size: 1.1em;
+    text-align: center;
+}
+
+body {
+    display: block;   
+}
+  
+
+/************************************/
+/* nav style bar */
+
+nav {
+    padding:5px;
+    text-align: center;
+    font-size: 1.3em;
+    background-color: #1b5031;
+    border-radius: 0.2em;
+}
+
+nav > a {
+    color:whitesmoke;
+    margin-right: 15px;
+    margin-left: 15px;
+    text-decoration: none;
+}
+
+nav button {
+    color:whitesmoke;
+    margin-right: 15px;
+    margin-left: 15px;
+    text-decoration: none;
+}
+
+div.current {
+    font-weight: bold;
+}
+
+a.current {
+    font-weight: bold;
+}
+
+
+.dropbtn {
+    color: white;
+    background-color: #1b5031;
+    border: none;
+    cursor: pointer;
+}
+
+.dropbtn:hover {
+    background-color: #1b5031;
+    color: white;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #1b5031;
+    min-width: 220px;
+    padding-left: 5px;
+    text-align: left;
+    overflow: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 2000;
+}
+
+.dropdown-content a {
+    color: white;
+    padding: .1em .1em;
+    text-decoration: none;
+    display: block;
+}
+
+nav a:hover {
+    background-color: #1b5031;
+    color: white;
+    
+}
+
+.dropdown a:hover {
+    background-color: #1b5031;
+    color: white;
+}
+
+.show {display:block;}
+
+/************************************/
+/* footer */
+footer {
+    font-size: .90em;
+    display: block;
+    background: #7ec29a; 
+    padding-left: 10px;
+    border-top-width: 3px;
+    border-top-style: solid;
+    border-top-color: black;
+}
+
+footer a {
+    text-decoration: underline;    
+}
+
+/***********************************/
+/* sections */
+div.section {
+    margin: 1em;    
+    margin-bottom: 2em;
+    color: #1b5031;
+}
+
+div.section table a {
+    text-decoration: underline;   
+}
+div.section p a {
+    text-decoration: underline;   
+    color: #f2f2f2;
+}
+
+div.section table {
+    margin-left: 1em;        
+    margin-top: 0em;
+}
+
+div.section p {
+    margin-left: 1em;        
+}
+
+div.section div.fixedmap {
+    margin-left: 1em;        
+}
+
+div.section h2 a {    
+    text-decoration: none;    
+}
+
+div.section ul {
+    margin-left: 0px;
+    list-style: none;    
+}
+
+/************************************/
+/* inline style maps */
+
+div.fixedmap { 
+    width: 100%; 
+    padding-top: 95%;
+    display:inline-block;
+}    
+   
+
+
+#map-layer-menu {
+    text-align: center;
+}
+
+
+/************************************/
+/* table style section */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+
+th, tr, td {
+    border: 1px dotted black;
+    padding: .2em;
+ }
+
+th {
+    color:whitesmoke;    
+    background-color: #1b5031;
+}
+
+tr:nth-child(even) {
+     background-color: #8eddaf;
+ 
+}
+
+
+/* property table in town page, remove columns 1 and 4 on small screens */
+@media only screen and (max-width: 1025px) {
+    table.townProperty td:nth-child(1) {
+      display:none;
+    }
+    table.townProperty th:nth-child(1) {
+        display:none;
+    }
+
+    table.townProperty td:nth-child(4) {
+        display:none;
+    }
+    table.townProperty th:nth-child(4) {
+        display:none;
+    }
+}
+
+/************************************/
+/* breadcrumb style section */
+
+ol.breadcrumb {
+    padding: 5px 5px;
+    padding-top: 0px;
+    margin-top:5px;
+    list-style: none;
+    background-color: #7ec29a;
+}
+
+/* Display list items side by side */
+ol.breadcrumb li {
+    display: inline;
+    font-size: 18px;
+}
+
+/* Add a slash symbol (/) before/behind each list item */
+ol.breadcrumb li+li:before {
+    padding: 4px;
+    color: black;
+    content: "/\00a0";
+}
+
+/* no underlines inside the list */
+ol.breadcrumb li a {
+    text-decoration: none;
+}
+
+

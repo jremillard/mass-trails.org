@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+
+<%!
+import urllib.parse
+
+def url(text):
+    return urllib.parse.quote(text.encode('utf-8'))
+
+def printNum(num):
+    if ( num == 0.0):
+        return "0"
+    elif (num < 5 ):
+        return "{0:0.1f}".format(num)
+    return "{0:1.0f}".format(num)
+    
+%>
+
+<html lang="en">
+  <head>
+    <%include file="headerall.html"/>
+    <%include file="headerleaflet.html"/>
+              
+    <script src="/scripts/tablesort.js"></script>   
+
+    <Title>${name | h,trim} Landowner - Massachusetts Trails</Title>
+
+    <meta name="Description" content="\
+The ${name |h,trim} owns \
+% if conservationAreaSqMiles > 1 :
+${ printNum(conservationAreaSqMiles) } square miles of land \
+% else :
+${ printNum(conservationAreaSqMiles*640.0) } acres of land \
+% endif 
+and has \
+% if ( publicTrailLength < 0.05) :
+no public trails\
+% else:
+${ printNum(publicTrailLength) } miles of public trails\
+% endif 
+.
+">
+    
+</head>
+  <body>
+        <header>
+                <nav>
+                <a href="/index.html">Welcome</a>
+                <a href="/towns/index.html">Towns</a>                        
+                <a href="/map/ma.html">Statewide Trail Map</a>
+                <a href="/search.html">Search</a>
+                <a href="/contribute.html">Contribute</a>
+                </nav>
+        </header>
+
+        <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li><a href="/landowners/index.html">Land Owners</a></li>
+        <li><a href="/landowners/${normalizedName}.html">${name | h,trim}</a></li>
+        </ol> 
+
+    <div class="section">
+        <p>The ${name |h,trim} owns 
+        % if conservationAreaSqMiles > 1 :
+        ${ printNum(conservationAreaSqMiles) } square miles of land 
+        % else :
+        ${ printNum(conservationAreaSqMiles*640.0) } acres of land 
+        % endif 
+        spanning ${len(propertyList)} properties, and has 
+        % if ( publicTrailLength < 0.05) :
+        no public trails.
+        % else:
+        ${ printNum(publicTrailLength) } miles of public trails
+        % endif 
+        % if len(website) > 0 :
+        The official website for <a href="${website}">${name | h,trim}</a> is ${website | h,trim}.</a> 
+        % endif
+       </p>
+    </div>
+
+    <div class="section">                
+    <h2>${name | h,trim} Property Map</h2>
+    <div class="fixedmap" id="mapid"></div>
+    </div>
+    
+    <div class="section">            
+        <h2>${name | h,trim} Property List</h2>
+
+        <table id="propertyTableId">
+        <tr>
+        <th>Name</th>
+        <th>Town</th>
+        <th>Public Trails miles</th>
+        </tr>
+        % for a in propertyList:
+            <tr>
+                    
+            <td>
+            % if ( len(a['propertyName']) > 0 ) :                
+            <a href="/towns/${a['propertyTownName'] | url}/${a['propertyPageName']}.html">${a['propertyName'] | h,trim}</a>
+            % else :
+            <a href="/towns/${a['propertyTownName'] | url}/${a['propertyPageName']}.html">No Name</a>
+            </td> 
+            % endif       
+
+            <td><a href="/towns/${a['propertyTownName'] | url}.html">${a['propertyTownName'] | h, trim}</a></td>
+    
+            <td>${ printNum(a['publicTrailLength']) }</td>
+            
+            </tr>
+        % endfor
+        </table>
+        
+    </div>
+            
+    <footer>
+    <%include file="attributions.html"/>
+    </footer>
+
+  <script>
+        var geoJsonShape = ${allShape}      
+  </script>
+
+  <script>    
+        var map;
+
+        function initmap() {
+            // set up the map
+            map = new L.Map('mapid',{zoomControl:false });
+
+            // create the tile layer with correct attribution
+            var osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+            var osm = new L.TileLayer(osmUrl);		
+
+            var propertyStyle = {
+                "color":"#000000",
+                "fillColor": "#0000FF",
+                "weight": 1,
+                "fillOpacity": .6,
+                };
+
+            map.dragging.disable();
+            map.touchZoom.disable();
+            map.doubleClickZoom.disable();
+            map.scrollWheelZoom.disable();
+
+            // Disable tap handler, if present.
+            if (map.tap) {
+                map.tap.disable();
+            }
+                
+            // start the map in South-East England
+            shape = L.geoJSON(geoJsonShape, { style:propertyStyle })
+            shape.addTo(map)
+            map.fitBounds(shape.getBounds())
+            map.addLayer(osm);
+        }
+
+        initmap();
+    
+    </script>
+  </body>  
+</html>
+
+

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<%!
+import urllib.parse
+
+def url(text):
+    return urllib.parse.quote(text.encode('utf-8'))
+
+def printNum(num):
+    if (num < 5 ):
+        return "{0:0.1f}".format(num)
+    return "{0:1.0f}".format(num)
+        
+%>
+<html lang="en">
+    <head>
+        <%include file="headerall.html"/>
+        <%include file="headerleaflet.html"/>
+        <title>${name | h,trim} - ${townName | h,trim} - MA - Massachusetts Trails</title>
+
+        % if ( len(name) > 0 ) :        
+        <meta name="Description" content="\
+The ${name | h,trim} \
+% if (propType == 'conservation'):
+conservation property \
+% elif (propType == 'park'):
+park \
+% elif (propType == 'recreation_ground'):
+recreation ground \
+% else:
+% endif                        
+% if ( len(ownerName) > 0 ) :
+is owned by the ${ownerName | h,trim}, \
+% endif                
+it is ${ printNum(propertyArea) } acres with 
+% if (publicTrailLength > 0.05) :
+${ printNum(publicTrailLength) } miles of trails\
+% else : 
+no public trails\
+% endif 
+% if ( len(access) > 0 ):
+, and is \
+% if ( access == "yes" or access == "public" ):
+open to the public. Please see the map for trails and parking\
+% elif ( access == "no" ):
+closed to the public\
+% elif ( access == "private" ):
+closed to the public.\
+% elif ( access == "permissive"):
+open to the public. Please see the map for trails and parking\
+% else :
+Please see the map for trails and parking\
+% endif
+.\
+% endif
+">
+        % else :
+        <meta name="robots" content="noindex">
+        % endif
+    </head>
+
+  <body>
+    <header>
+        % if ( len(name) > 0 ) :
+        <h1>${name | h,trim} - ${townName | h,trim} - MA</h1>
+        % endif
+        <%include file="townnavbar.html"/>
+
+        <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li><a href="/towns/index.html">Towns</a></li>
+        <li><a href="/towns/${townName | url}.html">${townName | h,trim}</a></li>
+        <li><a href="/towns/${townName | url}/${normalizedName}.html">${name | h,trim}</a></li>
+        </ol> 
+    </header>
+
+    <div class="section">
+        <p>
+        % if ( len(ownerName) > 0 ) :
+        The ${name | h,trim}         
+        % if (propType == 'conservation'):
+        conservation property
+        % elif (propType == 'park'):
+        park
+        % elif (propType == 'recreation_ground'):
+        recreation ground
+        % else:
+        % endif                        
+        is owned by the <a href="/landowners/${normalizedOwnerName}.html">${ownerName | h,trim}</a>.
+        It is ${ printNum(propertyArea) } 
+        % if (len(startDate) > 0):
+        acres and was purchased on ${startDate}.
+        % else : 
+        acres.   
+        % endif     
+        % else :
+        The ${name | h,trim} property is ${ printNum(propertyArea) } 
+        % if (len(startDate) > 0):
+        acres and was purchased on ${startDate}.
+        % else : 
+        acres.
+        % endif        
+        % endif
+
+        % if ( len(wikipedia) > 0 and  len(website) > 0 ) :        
+        The <a href=${website}> ${name | h,trim} has an official</a> website 
+        and <a href="https://en.wikipedia.org/wiki/${wikipedia | url}?uselang=en-US" rel=”nofollow”>Wikipedia Page</a>.        
+        % elif ( len(website) > 0 ) :        
+        The <a href=${website}> ${name | h,trim} has an official</a> website.
+        % elif ( len(wikipedia) > 0 ) :        
+        The property has a <a href="https://en.wikipedia.org/wiki/${wikipedia | url}?uselang=en-US" rel=”nofollow”>Wikipedia</a> page.
+        </a></li> 
+        % endif
+        
+        % if ( access == "yes" or access == "public" or access == "permissive" ):
+        This property is open to the public.
+        % elif ( access == "no" or access == "private"): 
+        There is no access for the general public.
+        % elif ( access == "customers"):
+        Access to the property requires a fee.         
+        % else:
+        % endif
+
+        % if ( publicTrailLength < 0.05) :
+        <p>The property has no public trails.</p>
+        % else:
+        <p>The property has ${ printNum(publicTrailLength) } miles of public trails.</p>
+        % endif 
+
+        % if ( (len(parking) > 0) and (access == "" or access == "yes" or access == "public" or access == "permissive" or access == "customers" )):
+            <p>Directions To Parking: 
+            % for p in parking:
+                <a onclick="mapClick(${ p['center'].y },${ p['center'].x })">${ p['name'] | h,trim }</a>\
+% if loop.reverse_index > 0 :
+,\
+% endif
+            % endfor
+.
+        % else :        
+        % endif 
+    </div>
+
+    <div class="section">
+        <H2>Trail Map</H2>
+        <div class="fixedmap" id="mapid"></div>
+        <p></p>
+    </div>
+
+    <footer>
+    <p>Searches: 
+            % if ( len(ownerName) > 0 ) :
+                <a href="https://www.google.com/search?q=${name | url}+${ownerName}+${townName | url}+MA" rel=”nofollow”>
+            % else:
+                <a href="https://www.google.com/search?q=${name | url}+Conservation+Land+${townName | url}+MA" rel=”nofollow”>
+            % endif
+            Google Search For Property</a>
+            , 
+            % if ( len(ownerName) > 0 ) :
+                <a href="https://www.google.com/search?q=${name | url}+${ownerName}+Map+${townName | url}+MA" rel=”nofollow”>
+            % else:
+                <a href="https://www.google.com/search?q=${name | url}+Conservation+Land+Map+${townName | url}+MA" rel=”nofollow”>
+            % endif
+            Google Search For Map</a> 
+            ,
+            
+            % if ( len(ownerName) > 0 ) :
+                <a href="https://www.bing.com/search?q=${name | url}+${ownerName}+${townName | url}+MA" rel=”nofollow”>
+            % else:
+                <a href="https://www.bing.com/search?q=${name | url}+Conservation+Land+${townName | url}+MA" rel=”nofollow”>
+            % endif
+            Bing Search For Property</a>
+            , 
+            % if ( len(ownerName) > 0 ) :
+                <a href="https://www.bing.com/search?q=${name | url}+${ownerName}+Map+${townName | url}+MA" rel=”nofollow”>
+            % else:
+                <a href="https://www.bing.com/search?q=${name | url}+Conservation+Land+Map+${townName | url}+MA" rel=”nofollow”>
+            % endif
+            Bing Search For Maps</a>     
+            
+    <p><a href="${normalizedName}_improve.html" rel=”nofollow”>Please Help Improve This Page!</a>
+                
+    <%include file="attributions.html"/>
+    </footer>
+
+
+  <script>
+
+    function mapClick( lat,lon ) {
+        var ua = navigator.userAgent;
+        if ( ua.lastIndexOf('Safari/') > 0) {
+            window.location.href = 'https://maps.apple.com/?daddr=+' + lat + "," + lon;
+        } else {
+            window.location.href = 'https://www.google.com/maps/dir/?api=1&destination=' + lat + "," + lon;
+        }
+        return true
+    }
+
+  
+  </script>
+    
+  <script>
+        var geoJsonShape = ${shape}      
+  </script>
+
+  <script>    
+        var map;
+
+        function initmap() {
+            // set up the map
+            map = new L.Map('mapid',{zoomSnap: 0.5, zoomControl:false });
+            map.attributionControl.setPrefix('');
+
+            var osmAttrib = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+            var osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+            var osm = new L.TileLayer(osmUrl,{ attribution: osmAttrib} );		
+
+            var mapboxAttrib = '<a href="http://www.mapbox.com/">Mapbox</a>'
+            
+            var massTrailsUrl='https://api.mapbox.com/styles/v1/mass-trails/cjcmqvcns1o0g2sn6ncwswjiu/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFzcy10cmFpbHMiLCJhIjoiY2phbmFqdzdyMDJndDM0cWtsM3p2OGFlciJ9.xIjcvh4Qpuda9seHns_eXg';
+            var massTrail = new L.TileLayer(massTrailsUrl, { attribution: mapboxAttrib} );		
+            
+            var satUrl='https://api.mapbox.com/styles/v1/mass-trails/cjcmt2j1l1sry2sp68a5fsz7e/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFzcy10cmFpbHMiLCJhIjoiY2phbmFqdzdyMDJndDM0cWtsM3p2OGFlciJ9.xIjcvh4Qpuda9seHns_eXg'
+            var sat = new L.TileLayer(satUrl,{ attribution: mapboxAttrib} );		
+
+            var OpenTopoMapAttrib = 'Kartendaten: © OpenStreetMap-Mitwirkende, SRTM | Kartendarstellung: © <a href="https://opentopomap.org/about">OpenTopoMap</a> (CC-BY-SA)'
+            var OpenTopoMapUrl = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
+            var OpenTopoMap = new L.TileLayer(OpenTopoMapUrl,{ attribution: OpenTopoMapAttrib} );		
+
+            var outdoorsAttrib =  'Maps &copy; <a href="http://www.thunderforest.com">Thunderforest</a>, Data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+            var outDoorsMapUrl = 'https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=c247083b920d4168a181ef276777c268'
+            var outDoorsMap = new L.TileLayer(outDoorsMapUrl,{ attribution: outdoorsAttrib} );		
+            
+            var propertyBorderStyle = {
+                "color": "#000000",
+                "weight": 2.5,
+                "opacity": 0.70,
+                "fill":false
+                };
+
+            // set basemaps
+            var baseMaps = {
+                "Trails": massTrail,
+                "OpenTopoMap":OpenTopoMap,
+                "Outdoors": outDoorsMap,
+                "Satellite":sat,
+                "OpenStreetMap": osm,
+            };
+
+
+            map.dragging.disable();
+            map.touchZoom.disable();
+            map.doubleClickZoom.disable();
+            map.scrollWheelZoom.disable();
+
+            // Disable tap handler, if present.
+            if (map.tap) {
+                map.tap.disable();
+            }
+            
+            L.control.layers(baseMaps,null,null).addTo(map);
+
+            shape = L.geoJSON(geoJsonShape, { style:propertyBorderStyle })
+            shape.addTo(map)            
+            map.fitBounds(shape.getBounds(),{ padding: [25, 25]} )
+            massTrail.addTo(map)
+
+            map.on('click', function (e) {
+                window.location.href = '/map/ma.html#map=' + Math.round(map.getZoom()) + '/' + e.latlng.lat.toPrecision(7) + '/' + e.latlng.lng.toPrecision(7);
+                //window.location.href = "/towns/${townName | url}/TrailMap_.html"
+            });
+            
+        }
+
+        initmap();
+    
+    </script>
+
+    <%include file="navmenu.html"/>
+
+  </body>
+  
+</html>
+
+

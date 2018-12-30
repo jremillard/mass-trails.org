@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+
+<%!
+import urllib.parse
+
+def url(text):
+    return urllib.parse.quote(text.encode('utf-8'))
+
+def printNum(num):
+    if ( num == 0.0):
+        return "0"
+    elif (num < 10 ):
+        return "{0:0.1f}".format(num)
+    return "{0:1.0f}".format(num)
+    
+%>
+
+<html lang="en">
+  <head>
+    <%include file="headerall.html"/>
+    <%include file="headerleaflet.html"/>
+        
+    <Title>${townName | h,trim} Open Space Properties - Massachusetts Trails</Title>
+    <meta name="Description" content="${townName | h,trim} Massachusetts - Open space properties and conservation parcels list.">
+    
+</head>
+  <body>
+    <header>
+        <h1>${townName | h,trim} Open Space Properties</h1>
+        <%include file="townnavbar.html"/>
+                
+        <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li><a href="/towns/index.html">Towns</a></li>
+        <li><a href="/towns/${townName | url}.html">${townName | h,trim}</a></li>
+        <li><a href="/towns/${townName | url}/Properties_.html">Open Space Properties</a></li>
+        </ol> 
+    </header>
+
+    <div class="section">
+        <H2>${townName | h,trim} - Open Space Properties Map</H2>
+        <div class="fixedmap" id="mapid"></div>
+    </div>
+    
+    <div class="section">
+        <h2>${townName | h,trim} Open Space Properties List</h2>
+        
+        <table id="propertyTableId">
+        <tr>
+            <th>Landowner</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Area Acres</th>
+            <th>Area In ${townName | h,trim} Acres</th>
+            <th>Public Trails Miles</th>            
+        </tr>
+        % for a in propertyList:
+            <tr>
+                
+            <td>
+            % if ( len(a['ownerName']) > 0 ) :
+            <a href="/landowners/${a['normalizeOwnerName']}.html">${a['ownerName'] | h,trim}</a>
+            % endif
+            </td>
+
+            <td>
+            % if ( len(a['propertyName']) > 0 ) :                
+            <a href="${a['propertyPageName']}.html">${a['propertyName'] | h,trim}</a>
+            % else :
+            <a href="${a['propertyPageName']}.html">No Name</a>            
+            % endif
+            </td>        
+
+            <td>
+                % if (a['propType'] == "conservation"):
+                Conservation
+                % elif (a['propType'] == "park"):
+                Park
+                % elif (a['propType'] == "recreation_ground"):
+                Recreation Ground
+                % else:
+                % endif                        
+            </td>
+
+            <td>${ printNum(a['propertyArea']) }</td>
+            <td>${ printNum(a['propertyAreaInTown']) }</td>
+            <td>${ printNum(a['publicTrailLength']) }</td>                    
+            </tr>
+        % endfor
+        </table>
+        <p></p>
+    </div>
+
+    <%include file="townfooter.html"/>
+    
+  <script>
+        var townBoundary = ${townBoundary}      
+        var townLand = ${landInTown}
+  </script>
+
+  <script>    
+        var map;
+
+        function initmap() {
+            // set up the map
+            map = new L.Map('mapid',{ zoomControl:false,zoomSnap: 0.25});
+
+            // create the tile layer with correct attribution
+            var osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+            var osm = new L.TileLayer(osmUrl);		
+
+            var propertyBorderStyle = {
+                "color": "#000000",
+                "weight": 4,
+                "opacity": 0.4,
+                "fill":false
+                };
+
+            var propertyStyle = {
+                "color":"#000000",
+                "fillColor": "#0000FF",
+                "weight": 1,
+                "fillOpacity": .6,
+                };
+                  
+            map.dragging.disable();
+            map.touchZoom.disable();
+            map.doubleClickZoom.disable();
+            map.scrollWheelZoom.disable();
+
+            // Disable tap handler, if present.
+            if (map.tap) {
+                map.tap.disable();
+            }
+                
+            shape = L.geoJSON(townBoundary, { style:propertyBorderStyle })
+            shape.addTo(map)
+
+            shapeLand = L.geoJSON(townLand, { style:propertyStyle })
+            shapeLand.addTo(map)
+            
+            map.on('click', function (e) {
+                window.location.href = "/towns/${townName | url}/OpenSpacePropertyMap_.html"
+            });
+            
+            map.fitBounds(shape.getBounds())
+            map.addLayer(osm);
+        }
+
+        initmap();
+    
+    </script>
+
+    <%include file="navmenu.html"/>
+
+</body>
+
+</html>
+
+

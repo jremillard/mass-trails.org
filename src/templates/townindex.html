@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<%!
+import urllib.parse
+
+def url(text):
+    return urllib.parse.quote(text.encode('utf-8'))
+%>
+<html lang="en">
+  <head>
+    <%include file="headerall.html"/>
+    <Title>Town List - Massachusetts Trails</Title>
+    <script src="/scripts/tablesort.js"></script>   
+</head>
+<body>
+
+<header>
+    <nav>
+    <a href="/index.html">Welcome</a>
+    <a class="current" href="/towns/index.html">Towns</a>    
+    <a href="/map/ma.html">Statewide Trail Map</a>
+    <a href="/search.html">Search</a>
+    <a href="/contribute.html">Contribute</a>
+    </nav>
+    
+    <ol class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <li><a href="/towns/index.html">Towns</a></li>
+    </ol> 
+</header>
+
+<div class="section">                            
+    <h2>Towns</h2>
+
+    % for i, town in enumerate(townList):
+        % if ( i == 0 or (i > 0 and town['name'][0] != townList[i-1]['name'][0]) ):
+            <p>${ town['name'][0] } -         
+        % endif 
+        <a href="/towns/${town['name'] | url}.html">${town['name'] | h,trim}</a>, 
+    % endfor
+</div>
+
+<div class="section">                            
+    <h2>Open Space And Conservation Town Ranking</h2>
+              
+    <p> <a href="/towns/rank-area.html">Towns Ranked By Open Space Area</a>.</p>
+    <p> <a href="/towns/rank-area-percent.html">Towns Ranked By Open Space Area Percentage</a>.</p>
+    <p> <a href="/towns/rank-trails.html">Towns Ranked By Public Trails</a>.</p>    
+</div>
+
+</body>
+</html>
+
+

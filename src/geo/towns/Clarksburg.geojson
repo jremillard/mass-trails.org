@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "TOWNSSURVEY_POLYM_TOWN__CLARKSBURG",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "TOWN": "CLARKSBURG", "TOWN_ID": 63, "POP1980": 1756, "POP1990": 1745, "POP2000": 1686, "POPCH80_90": -11, "POPCH90_00": -59, "TYPE": "T", "FOURCOLOR": 2, "FIPS_STCO": 25003, "SUM_ACRES": 8186.638, "SUM_SQUARE": 12.792, "POP2010": 1702, "POPCH00_10": 16, "SHAPE_AREA": 33130145.894400001, "SHAPE_LEN": 25539.4832828 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -73.048438499340392, 42.741652309716542 ], [ -73.059472299223486, 42.70839405204643 ], [ -73.165903668083629, 42.711831736408236 ], [ -73.163639289926806, 42.743944587517284 ], [ -73.048438499340392, 42.741652309716542 ] ] ] } }
+]
+}

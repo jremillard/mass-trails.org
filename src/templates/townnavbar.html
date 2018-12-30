@@ -1,0 +1,25 @@
+<%!
+import urllib.parse
+
+def url(text):
+    return urllib.parse.quote(text.encode('utf-8'))
+%>
+
+<nav>
+<a href="/index.html">Welcome</a>
+<div class="dropdown">
+    <div onclick="townDropBownHandler()" class="dropbtn current" >${townName | h,trim}</div>
+    <div id="myDropdown" class="dropdown-content">
+            <a href="/towns/${townName | url}/TrailMap_.html">Trail Map</a>
+            <a href="/towns/${townName | url}.html">Summary</a>
+            <a href="/towns/${townName | url}/Owners_.html">Landowners</a>
+            <a href="/towns/${townName | url}/Properties_.html">Properties</a>
+            <a href="/towns/${townName | url}/OpenSpacePropertyMap_.html">Property Map</a>
+            <a href="/towns/${townName | url}/improve_.html">Improve The Map</a>
+        </div>            
+</div>
+
+<a href="/map/ma.html">Statewide Trail Map</a>
+<a href="/search.html">Search</a>
+<a href="/contribute.html">Contribute</a>
+</nav>

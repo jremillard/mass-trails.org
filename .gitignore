@@ -12,10 +12,11 @@ src/properties-osm.geojson
 src/trails-osm.geojson
 src/mass-trails.sqlite
 src/*.pbf
-#scripts/modifiedtime.js
-#scripts/search.js
-#sitemap.xml
-#src/search.json
+scripts/modifiedtime.js
+scripts/search.js
+sitemap.xml
+src/search.json
+
 
 # has dev key still.
 src/findwebsites.py

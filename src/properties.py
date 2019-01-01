@@ -1,5 +1,4 @@
 import sys
-import overpy
 import os
 import sqlite3
 import glob

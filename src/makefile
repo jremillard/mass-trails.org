@@ -10,6 +10,9 @@
 trails-osm.geojson: trails.py massachusetts-latest.osm.pbf properties-osm.geojson
 	python3 trails.py
 
+renderingdb.sqlite: makerenderingdb.py massachusetts-latest.osm.pbf
+	python3 makeenderingdb.py
+
 properties-osm.geojson: properties.py massachusetts-latest.osm.pbf 
 	python3 properties.py
 

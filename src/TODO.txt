@@ -15,7 +15,6 @@ TODO.txt
     - show l3 parcel layer in full screen town map
     - ownership color map
     - property types color map
-    - pdf of map
 
 - landowner map
   - allow user to click on properties on land owner map.
@@ -42,6 +41,12 @@ TODO.txt
 - Scripts
   - weekly master update script.
   - deal with overlapping properties in area calculations
+
+
+- Custom tiles
+  - large conservation pdf per town
+  - pdf per property
+  - GTC tile set.
 
 ----------------------------------------------------
 

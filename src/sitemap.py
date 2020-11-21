@@ -34,6 +34,8 @@ for filename in glob.iglob(r'../**/*.html', recursive=True):
               re.search("/src/",filename) == None):
 
             filenameUrl = filename.replace('../','')
+            filenameUrl = filenameUrl.replace('..\\','')
+            filenameUrl = filenameUrl.replace('\\','/')
             filenameUrl = filenameUrl.replace(" ","%20")
 
             url = ET.SubElement(urlset, "url")

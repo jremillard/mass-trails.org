@@ -54,18 +54,18 @@ def writeFileIfDifferent( newLandownerFile, filename):
     newFile = newLandownerFile.getvalue()
 
     if ( os.path.exists(filename) ):
-        with open(filename,encoding='utf-8') as fileHandle: 
+        with open(filename,encoding='utf-8',newline='\n') as fileHandle: 
             existingFile = fileHandle.read()
 
     if ( existingFile != newFile):
         print("file modified " + filename)
 
-        #with open ("/home/jason/mass-trails.org/src/old.txt",encoding='utf-8',mode="w") as fileHandle :
+        #with open ("old.txt",encoding='utf-8',mode="w",newline='\n') as fileHandle :
         #    fileHandle.write(existingFile)
-        #with open ("/home/jason/mass-trails.org/src/new.txt",encoding='utf-8',mode="w") as fileHandle :
+        #with open ("new.txt",encoding='utf-8',mode="w",newline='\n') as fileHandle :
         #    fileHandle.write(newFile)
         
-        with open (filename,encoding='utf-8',mode="w") as fileHandle :
+        with open (filename,encoding='utf-8',mode="w",newline='\n') as fileHandle :
             fileHandle.write(newFile)
 
         #os.exit(0)
@@ -210,9 +210,9 @@ def WriteTowns(townNameFilter,searchUrls):
 
         landOwnerList = sorted(landOwnerListNew, key=lambda x: x[3],reverse=True)
 
-        townDirName = "../towns/{}".format(townName)
+        townDirName = os.path.join( "..","towns",townName)
         if ( os.path.exists(townDirName ) == False):
-            os.mkdir(townDirName)
+            os.makedirs(townDirName)
 
         shapeLandInTown = shapeLandInTownProj
 
@@ -252,7 +252,7 @@ def WriteTowns(townNameFilter,searchUrls):
             propertyListFull=propertyList,
             landOwnerListFull=landOwnerList)
         newFile.write( body)
-        writeFileIfDifferent( newFile, "../towns/{}.html".format(townName))
+        writeFileIfDifferent( newFile, os.path.join("..","towns", townName + ".html"))
         newFile.close()
 
         searchUrls.append( 
@@ -277,7 +277,7 @@ def WriteTowns(townNameFilter,searchUrls):
             propertyList=propertyList,
             landOwnerList=landOwnerList)
         newFile.write( body)
-        writeFileIfDifferent( newFile, "../towns/{}/Properties_.html".format(townName))
+        writeFileIfDifferent( newFile, os.path.join( "..","towns",townName,"Properties_.html"))
         newFile.close()
 
         searchUrls.append( 
@@ -302,7 +302,7 @@ def WriteTowns(townNameFilter,searchUrls):
             propertyList=propertyList,
             landOwnerList=landOwnerList)
         newFile.write( body)
-        writeFileIfDifferent( newFile, "../towns/{}/Owners_.html".format(townName))
+        writeFileIfDifferent( newFile, os.path.join( "..","towns",townName,"Owners_.html"))
         newFile.close()
 
         searchUrls.append( 
@@ -329,7 +329,7 @@ def WriteTowns(townNameFilter,searchUrls):
             propertyList=propertyList,
             landOwnerList=landOwnerList)
         newFile.write( body)
-        writeFileIfDifferent( newFile, "../towns/{}/improve_.html".format(townName))
+        writeFileIfDifferent( newFile, os.path.join( "..","towns", townName, "improve_.html"))
         newFile.close()
 
         WriteTownPropertyMapPage(townName,townBoundaryJson,searchUrls )
@@ -364,7 +364,7 @@ def WriteTowns(townNameFilter,searchUrls):
         townList=townListNew
         )
     newFile.write( body)
-    writeFileIfDifferent( newFile, "../towns/index.html")
+    writeFileIfDifferent( newFile, os.path.join("..","towns","index.html"))
     newFile.close()
 
     newFile = io.StringIO()
@@ -373,7 +373,7 @@ def WriteTowns(townNameFilter,searchUrls):
         townList=sorted(townListNew, key=lambda x: x["conservationArea"],reverse=True)
         )
     newFile.write( body)
-    writeFileIfDifferent( newFile, "../towns/rank-area.html")
+    writeFileIfDifferent( newFile, os.path.join("..","towns","rank-area.html"))
     newFile.close()
 
     newFile = io.StringIO()
@@ -382,7 +382,7 @@ def WriteTowns(townNameFilter,searchUrls):
         townList=sorted(townListNew, key=lambda x: x["areaPercent"],reverse=True)
         )
     newFile.write( body)
-    writeFileIfDifferent( newFile, "../towns/rank-area-percent.html")
+    writeFileIfDifferent( newFile, os.path.join("..","towns","rank-area-percent.html"))
     newFile.close()
 
     newFile = io.StringIO()
@@ -391,7 +391,7 @@ def WriteTowns(townNameFilter,searchUrls):
         townList=sorted(townListNew, key=lambda x: x["publicTrailLength"],reverse=True)
         )
     newFile.write( body)
-    writeFileIfDifferent( newFile, "../towns/rank-trails.html")
+    writeFileIfDifferent( newFile, os.path.join("..","towns","rank-trails.html"))
     newFile.close()
 
 
@@ -503,7 +503,7 @@ def WriteLandOwners(searchUrls):
             allShape=geojson.dumps(allShapeJson),
             )
         newFile.write( body)
-        writeFileIfDifferent( newFile, "../landowners/{}.html".format(normalizedName))
+        writeFileIfDifferent( newFile, os.path.join("..","landowners", normalizedName+".html"))
         newFile.close()
             
         landOwnerListNew.append( 
@@ -601,7 +601,7 @@ def WriteTownPropertyMapPage(townName,townBoundaryJson,searchUrls ):
         townBoundary=geojson.dumps(townBoundaryJson)
     )
     newFile.write( body)
-    writeFileIfDifferent( newFile, "../towns/{}/OpenSpacePropertyMap_.html".format(townName))
+    writeFileIfDifferent( newFile, os.path.join( "..","towns",townName,"OpenSpacePropertyMap_.html"))
     newFile.close()
 
     searchUrls.append( 
@@ -620,7 +620,7 @@ def WriteTownPropertyMapPage(townName,townBoundaryJson,searchUrls ):
         townBoundary=geojson.dumps(townBoundaryJson)
     )
     newFile.write( body)
-    writeFileIfDifferent( newFile, "../towns/{}/TrailMap_.html".format(townName))
+    writeFileIfDifferent( newFile, os.path.join("..","towns",townName,"TrailMap_.html"))
     newFile.close()
 
     searchUrls.append( 
@@ -775,7 +775,7 @@ def WriteProperties(townNameFilter,searchUrls):
             name=name
             )
         newFile.write( body)
-        writeFileIfDifferent( newFile, "../towns/{}/{}.html".format(townName,propertyPageNameStr))
+        writeFileIfDifferent( newFile, os.path.join( "..","towns",townName, propertyPageNameStr + ".html"))
         newFile.close()
 
         if ( len(name) > 0 ) :
@@ -821,7 +821,7 @@ def WriteProperties(townNameFilter,searchUrls):
             name=name
             )
         newFile.write( body)
-        writeFileIfDifferent( newFile, "../towns/{}/{}_improve.html".format(townName,propertyPageNameStr))
+        writeFileIfDifferent( newFile, os.path.join("..","towns",townName,propertyPageNameStr + "_improve.html"))
         newFile.close()
 
         if ( len(name) > 0 ) :

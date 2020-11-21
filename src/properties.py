@@ -188,6 +188,10 @@ class PropertiesHandler(osmium.SimpleHandler):
             (townName,townGeom) = row
             shape = shapely.wkt.loads(townGeom)                
             shape = shapely.ops.transform(projectionToMeters, shape)        
+
+            if ( shape.is_valid == False): 
+                print("Town {} has bad toplogy".format(townName))
+
             self.townIndex.insert(len(self.townList), shape.bounds)
             self.townList.append( { 'townName':townName, 'shape':shape } )
                 
@@ -291,6 +295,7 @@ class PropertiesHandler(osmium.SimpleHandler):
             for j in self.townIndex.intersection( shapeProj.bounds):
                 townName =  self.townList[j]['townName']
                 townShape = self.townList[j]['shape']
+
 
                 areaInTown = shapeProj.intersection(townShape)
                 if ( areaInTown.area > largestTownArea) :

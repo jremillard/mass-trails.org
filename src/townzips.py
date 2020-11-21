@@ -17,25 +17,6 @@ import rtree
 projectionToMeters = functools.partial(pyproj.transform, pyproj.Proj(init='epsg:4326'),pyproj.Proj(init='epsg:3410'))
 wktfab = osmium.geom.WKTFactory()
 
-def updateTownBoundary():
-    conn = sqlite3.connect('mass-trails.sqlite')
-
-    for geojsonFile in glob.glob('geo/towns/*.geojson'):
-        townName = os.path.split(geojsonFile)[1]
-        townName = townName[0:-8]
-
-        with open(geojsonFile,'r') as f :
-            boundaryJson = geojson.load(f)
-
-            boundaryShape = shapely.geometry.shape(boundaryJson['features'][0]['geometry'])
-
-            c = conn.cursor()
-            c.execute('update towns set geom=? where name = ?',(boundaryShape.wkt,townName))
-
-    conn.commit()
-    conn.close()
-
-
 class TownAddressHandler(osmium.SimpleHandler):
     def __init__(self, c):
         osmium.SimpleHandler.__init__(self)

@@ -329,10 +329,23 @@ def updateTrails():
         features =[]
 
         for path in th.trails:
-            features.append( geojson.Feature(geometry=path["geometry"], properties=path["tags"]))
+            if ( path["geometry"].geom_type == 'GeometryCollection' ):
+                # points will sneak in turning the line string collections into GeometryCollections.
+                # which causes problems with the mapbox importer. Filter out anything that is not 
+                # a line string.
+                lineStringList = []
+                for l in path["geometry"]:
+                    if ( l.geom_type == "LineString"):
+                        lineStringList.append(l)
+
+                if ( len(lineStringList) > 0):
+                    newLineString = shapely.geometry.MultiLineString(lineStringList )
+                    features.append( geojson.Feature(geometry=newLineString, properties=path["tags"]))
+            else:
+                features.append( geojson.Feature(geometry=path["geometry"], properties=path["tags"]))
 
         featureC = geojson.FeatureCollection(features)
-        maTrails = geojson.dumps(featureC)
+        maTrails = geojson.dumps(featureC)  # ,indent=2 to make it pretty
 
         outputFile.write(maTrails)
 

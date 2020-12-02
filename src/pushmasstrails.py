@@ -4,18 +4,13 @@ import os
 
 key = os.environ['MASSTRAILS-AZURE-SAS']
 
-updateSat = False
-updateTiles = True
+cmd = "azcopy rm \"https://masstrails.blob.core.windows.net/$web/*" + key + "\" --recursive"
+#print(cmd)
+#os.system(cmd)
 
-
-if ( updateTiles):
-    cmd = "azcopy rm \"https://masstrails.blob.core.windows.net/$web/*" + key + "\" --recursive"
-    #print(cmd)
-    #os.system(cmd)
-
-    cmd = "azcopy copy ..\* \"https://masstrails.blob.core.windows.net/$web" + key + "\" --recursive --exclude-path=\"src;mapstyles\" --exclude-pattern=\"*.py;*.exe;.gitignore;.htaccess;.git\""
-    print(cmd)
-    os.system(cmd)
+cmd = "azcopy copy ..\* \"https://masstrails.blob.core.windows.net/$web" + key + "\" --recursive --exclude-path=\"src;mapstyles\" --exclude-pattern=\"*.py;*.exe;.gitignore;.htaccess;.git\""
+#print(cmd)
+os.system(cmd)
 
 
 

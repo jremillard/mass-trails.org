@@ -11,12 +11,13 @@ landowners/*
 src/properties-osm.geojson
 src/trails-osm.geojson
 src/mass-trails.sqlite
+src/mass-trails.sqlite-journal
 src/*.pbf
 scripts/modifiedtime.js
 scripts/search.js
 sitemap.xml
 src/search.json
-
+azcopy.exe
 
 # has dev key still.
 src/findwebsites.py

@@ -62,7 +62,7 @@ Please see the map for trails and parking\
   <body>
     <header>
         % if ( len(name) > 0 ) :
-        <h1>${name | h,trim} - ${townName | h,trim} - MA</h1>
+        <h1><img src="/header-icon-left.png">${name | h,trim} - ${townName | h,trim} - MA<img src="/header-icon-right.png"></h1>
         % endif
         <%include file="townnavbar.html"/>
 

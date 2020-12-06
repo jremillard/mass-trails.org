@@ -17,7 +17,7 @@ def url(text):
 </head>
 <body>
 <header>
-    <h1>${townName | h,trim} - Mass Trails</h1>
+    <h1><img src="/header-icon-left.png">${townName | h,trim} - Mass Trails <img src="/header-icon-right.png"></h1>
     <%include file="townnavbar.html"/>
         
     <ol class="breadcrumb">
@@ -28,9 +28,9 @@ def url(text):
 </header>
 
 <div class="section">
-    <p>${townName | h,trim} has ${ "{0:1.0f}".format(conservationAreaSqMiles) } 
+    <p>${townName | h,trim} has ${ "{0:1.1f}".format(conservationAreaSqMiles) if (conservationAreaSqMiles < 5) else "{0:1.0f}".format(conservationAreaSqMiles) } 
         square miles of open space, ${ "{0:1.0f}".format(conservationAreaSqMiles/townAreaSqMiles*100.0) }% of the total, 
-        and ${ "{0:1.0f}".format(publicTrailLength) } miles of public trails.
+        and ${ "{0:1.1f}".format(publicTrailLength) if (publicTrailLength < 5) else "{0:1.0f}".format(publicTrailLength) } miles of public trails.
     </p>
 
     <p>The major open space properties in ${townName | h,trim} are:

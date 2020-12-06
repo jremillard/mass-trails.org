@@ -39,6 +39,11 @@ h1 {
     margin: .1em auto;
 }
 
+h1 img {
+    display: inline;
+    margin:0 15px 0 15px;
+}
+
 h2 {
     font-size: 1.1em;
     text-align: center;

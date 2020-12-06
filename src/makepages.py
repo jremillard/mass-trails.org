@@ -552,9 +552,8 @@ def WriteTownPropertyMapPage(townName,townBoundaryJson,searchUrls ):
         shape = shapely.wkt.loads(geom)
         shapeProj = shapely.ops.transform(projectionToMeters, shape)
 
-        osmIds = []
-
         if ( normalizedName and len(normalizedName) > 0 ) :
+
             propertyListSameName = conn.cursor().execute(
                 selectStr +          
                 "from properties,propertyInsides " + 
@@ -562,17 +561,10 @@ def WriteTownPropertyMapPage(townName,townBoundaryJson,searchUrls ):
                 "properties.normalizedName = ? and " +
                 "propertyInsides.townName = ? and " +
                 "propertyInsides.osmId = properties.osmId", (normalizedName,townName) ).fetchall()
-
-            shape = shapely.geometry.Polygon([])
-            shapeProj = shapely.geometry.Polygon([])
                 
+            # spread the owner and website tabs around if there are multiple entities.
             for propSameName in propertyListSameName:
                 osmidI, nameI, normalizedNameI, ownerNameI, normalizedOwnerNameI, websiteI, geomI = propSameName
-
-                shapeI = shapely.wkt.loads(geomI)
-                shapeProjI = shapely.ops.transform(projectionToMeters, shapeI)
-
-                shapeProj = shapeProj.union(shapeProjI)
 
                 if ( ownerName is None):
                     ownerName = ownerNameI
@@ -580,10 +572,6 @@ def WriteTownPropertyMapPage(townName,townBoundaryJson,searchUrls ):
                 if ( website is None):
                     website = websiteI
                                     
-                osmIds.append( osmidI)
-        else:
-            osmIds = [osmid]
-
         # back to lat long
         shape = shapely.ops.transform(projectionToLatLon, shapeProj)
 

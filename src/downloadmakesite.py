@@ -24,8 +24,8 @@ os.system("pushmasstrails.py")
 
 # MAPBOX_ACCESS_TOKEN= to upload token env
 
-#os.system("mapbox upload mass-trails.7otdywgx --name ma-trails-osm-cqxncf trails-osm.geojson")
+os.system("mapbox upload mass-trails.7otdywgx --name ma-trails-osm-cqxncf trails-osm.geojson")
 os.system("mapbox upload mass-trails.01ptq61x --name ma-properties-osm-0y6yww properties-osm.geojson")
 
-
+mass-trails.7otdywgx
 

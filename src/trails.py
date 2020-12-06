@@ -96,9 +96,9 @@ class TrailsHandler(osmium.SimpleHandler):
                         
 
                     if ( k == 'surface'):
-                        if ( v in [ 'asphalt','concrete','paving_stones','bricks','wood','brick','paved','cement']):
+                        if ( v in [ 'asphalt','concrete','paving_stones','bricks','brick','paved','cement']):
                             v = 'paved'
-                        elif (v in ['compacted','fine_gravel','gravel','pebblestone']): 
+                        elif (v in ['compacted','fine_gravel','gravel','pebblestone','wood']): 
                             v = 'compacted'
                         elif (v in ['ground','sand','dirt','grass','shells','unpaved','earth']):
                             v = 'ground'

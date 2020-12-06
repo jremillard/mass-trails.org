@@ -130,7 +130,7 @@ Please see the map for trails and parking\
         % if ( (len(parking) > 0) and (access == "" or access == "yes" or access == "public" or access == "permissive" or access == "customers" )):
             <p>Directions To Parking: 
             % for p in parking:
-                <a onclick="mapClick(${ p['center'].y },${ p['center'].x })">${ p['name'] | h,trim }</a>\
+                <a href="javascript:void(0)" onclick="mapClick(${ p['center'].y },${ p['center'].x })">${ p['name'] | h,trim }</a>\
 % if loop.reverse_index > 0 :
 ,\
 % endif
